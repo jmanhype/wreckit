@@ -805,3 +805,12 @@ Running next item...
     Or run `git checkout -- .` to discard changes (destructive)[39m
 [31mERROR[39m: [36mFailed: 021-implement-progress-persistence-for-batch-operation[39m
 ❌ Crashed with code 1. Restarting in 5s...
+Running next item...
+[32mINFO[39m: [36mRunning: 021-implement-progress-persistence-for-batch-operation[39m
+[32mINFO[39m: [36mRunning pr phase on 021-implement-progress-persistence-for-batch-operation[39m
+[34mDEBUG[39m: [36mRunning: git show-ref --verify --quiet refs/heads/wreckit/021-implement-progress-persistence-for-batch-operation[39m
+[32mINFO[39m: [36mBranch wreckit/021-implement-progress-persistence-for-batch-operation exists, switching to it[39m
+[34mDEBUG[39m: [36mRunning: git checkout wreckit/021-implement-progress-persistence-for-batch-operation[39m
+[34mDEBUG[39m: [36mRunning: git rev-parse --abbrev-ref HEAD[39m
+[34mDEBUG[39m: [36mRunning: git status --porcelain[39m
+[34mDEBUG[39m: [36mRunning: git add -A[39m
