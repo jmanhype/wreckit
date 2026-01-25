@@ -1433,7 +1433,7 @@ export async function runPhaseComplete(
  */
 export function getNextPhase(
   item: Item
-): "research" | "plan" | "implement" | "pr" | "complete" | null {
+): "research" | "plan" | "implement" | "critique" | "pr" | "complete" | null {
   switch (item.state) {
     case "idea":
       return "research";
@@ -1442,6 +1442,8 @@ export function getNextPhase(
     case "planned":
       return "implement";
     case "implementing":
+      return "critique";
+    case "critique":
       return "pr";
     case "in_pr":
       return "complete";
