@@ -132,7 +132,7 @@
         "HealingResult indicates success/failure and number of files restored"
       ],
       "priority": 3,
-      "status": "pending",
+      "status": "done",
       "notes": "Leverages existing backup system from src/doctor.ts. Critical files only - user item files not included."
     },
     {
@@ -148,7 +148,7 @@
         "Statistics are calculated from JSONL log file parsing"
       ],
       "priority": 4,
-      "status": "pending",
+      "status": "done",
       "notes": "Provides visibility into healing effectiveness. Helps identify recurring issues."
     },
     {
@@ -162,7 +162,7 @@
         "Alert check handles missing or malformed healing log gracefully"
       ],
       "priority": 4,
-      "status": "pending",
+      "status": "done",
       "notes": "Helps identify deeper issues that require manual attention rather than endless retry loops."
     },
     {
@@ -175,7 +175,7 @@
         "If no healing events, section is not displayed"
       ],
       "priority": 4,
-      "status": "pending",
+      "status": "done",
       "notes": "Provides quick visibility into healing activity during normal workflow."
     }
   ]

@@ -8,6 +8,8 @@ import { loadConfig } from "../config";
 import { readItem, readPrd, writeItem, readBatchProgress, writeBatchProgress, clearBatchProgress } from "../fs/json";
 import { scanItems } from "./status";
 import { runCommand } from "./run";
+import { writeHealingLog, type HealingLogEntry } from "../agent/healingRunner";
+import type { DoctorConfig } from "../schemas";
 import { TuiViewAdapter } from "../views";
 import type { AgentEvent } from "../tui/agentEvents";
 import { createSimpleProgress } from "../tui";
