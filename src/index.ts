@@ -28,15 +28,11 @@ import {
 import { learnCommand } from "./commands/learn";
 import { dreamCommand } from "./commands/dream";
 import { summarizeCommand } from "./commands/summarize";
-<<<<<<< HEAD
-import { createSpriteCommand } from "./commands/sprite";
-=======
 import { geneticistCommand } from "./commands/geneticist";
 import {
   checkIntegrityCommand,
   watchdogCommand,
 } from "./commands/watchdog";
->>>>>>> origin/main
 // import { sdkInfoCommand } from "./commands/sdk-info";
 import { runOnboardingIfNeeded } from "./onboarding";
 import { resolveId } from "./domain/resolveId";
@@ -65,11 +61,6 @@ program
   .option("--retry-failed", "Include previously failed items when resuming")
   .option("--no-healing", "Disable automatic self-healing (Item 038)")
   .option("--cwd <path>", "Override the working directory")
-<<<<<<< HEAD
-  .option("--agent <kind>", "Agent kind to use (claude_sdk, amp_sdk, codex_sdk, opencode_sdk, rlm)")
-  .option("--rlm", "Shorthand for --agent rlm")
-  .option("--sandbox", "Run in isolated Sprite VM with automatic cleanup (implies --agent rlm)");
-=======
   .option(
     "--agent <kind>",
     "Agent kind to use (claude_sdk, amp_sdk, codex_sdk, opencode_sdk, rlm, sprite)",
@@ -77,9 +68,8 @@ program
   .option("--rlm", "Shorthand for --agent rlm")
   .option(
     "--sandbox",
-    "Run in isolated Sprite VM with automatic cleanup (implies --agent sprite)",
+    "Run in isolated Sprite VM with automatic cleanup (implies --agent rlm)",
   );
->>>>>>> origin/main
 
 program.action(async () => {
   const opts = program.opts();
@@ -472,9 +462,7 @@ program
     );
   });
 
-// ============================================================================
-// Sprite Commands (Item 073)
-// ============================================================================
+// ============================================================================ // Sprite Commands (Item 073) // ============================================================================ 
 
 const spriteCmd = program
   .command("sprite")
@@ -796,7 +784,7 @@ program
   .command("strategy")
   .description("Analyze codebase and generate/update ROADMAP.md")
   .option("--force", "Regenerate ROADMAP.md even if it exists")
-  .option("--analyze-dirs <dirs...>", "Directories to analyze (default: src)")
+  .option("--analyze-dirs <dirs...>")
   .action(async (options, cmd) => {
     const globalOpts = cmd.optsWithGlobals();
     await executeCommand(
@@ -1000,8 +988,12 @@ program
             autoMerge: options.autoMerge,
             cwd: resolveCwd(globalOpts.cwd),
             verbose: globalOpts.verbose,
-            timeWindowHours: options.timeWindow ? parseInt(options.timeWindow, 10) : 48,
-            minErrorCount: options.minErrors ? parseInt(options.minErrors, 10) : 3,
+            timeWindowHours: options.timeWindow
+              ? parseInt(options.timeWindow, 10)
+              : 48,
+            minErrorCount: options.minErrors
+              ? parseInt(options.minErrors, 10)
+              : 3,
           },
           logger,
         );
@@ -1016,9 +1008,7 @@ program
     );
   });
 
-// ============================================================================
-// Watchdog Commands (Item 092)
-// ============================================================================
+// ============================================================================ // Watchdog Commands (Item 092) // ============================================================================ 
 
 program
   .command("check-integrity")
@@ -1058,7 +1048,9 @@ program
         await watchdogCommand(
           {
             cwd: resolveCwd(globalOpts.cwd),
-            debounceMs: options.debounceMs ? parseInt(options.debounceMs, 10) : 500,
+            debounceMs: options.debounceMs
+              ? parseInt(options.debounceMs, 10)
+              : 500,
             json: options.json,
           },
           logger,
@@ -1073,8 +1065,6 @@ program
       },
     );
   });
-
-program.addCommand(createSpriteCommand(logger, resolveCwd));
 
 async function main(): Promise<void> {
   // Set up interrupt handler with VM cleanup capability
