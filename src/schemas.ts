@@ -341,14 +341,11 @@ export const ConfigSchema = z.object({
   skills: SkillConfigSchema.optional(),
   // Add optional doctor configuration (Item 038)
   doctor: DoctorConfigSchema.optional(),
-<<<<<<< HEAD
   // Add optional compute configuration (feature/sprites)
   compute: ComputeConfigSchema.optional(),
   limits: LimitsConfigSchema.optional(),
-=======
   // Add optional story scope configuration (Item 084)
   story_scope: StoryScopeConfigSchema.optional(),
->>>>>>> origin/main
 });
 
 export const PriorityHintSchema = z.enum(["low", "medium", "high", "critical"]);
