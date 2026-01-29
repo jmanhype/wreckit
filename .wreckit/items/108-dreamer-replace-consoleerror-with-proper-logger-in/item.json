@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "108-dreamer-replace-consoleerror-with-proper-logger-in",
+  "title": "[DREAMER] Replace console.error with proper logger in git validation",
+  "section": "git",
+  "state": "idea",
+  "overview": "Direct console usage bypasses the logging infrastructure, making it difficult to control log levels and outputs in production environments. This creates inconsistency in how debugging information is surfaced.\n\n**Motivation:** Using the centralized Logger provides consistent log formatting, level control, and output routing. It also enables better debugging experiences in production by allowing log configuration without code changes.\n\n**Success criteria:**\n- console.error calls replaced with logger.debug\n- DEBUG_IS_GIT_REPO environment variable behavior is preserved\n- Logging tests pass\n- No regression in git repository detection functionality\n\n**Technical constraints:**\n- Must preserve debug-only behavior when DEBUG_IS_GIT_REPO is not set\n- Logger instance must be properly injected or imported\n- Should not add performance overhead when debug is disabled\n\n**In scope:**\n- src/git/validation.ts - lines 194 and 214\n**Out of scope:**\n- Other console.log/error usage in the codebase (separate issue)\n\n**Signals:** priority: low, urgency: Code quality improvement",
+  "branch": null,
+  "pr_url": null,
+  "pr_number": null,
+  "last_error": null,
+  "created_at": "2026-01-29T03:20:52.748Z",
+  "updated_at": "2026-01-29T03:20:52.748Z",
+  "problem_statement": "Direct console usage bypasses the logging infrastructure, making it difficult to control log levels and outputs in production environments. This creates inconsistency in how debugging information is surfaced.",
+  "motivation": "Using the centralized Logger provides consistent log formatting, level control, and output routing. It also enables better debugging experiences in production by allowing log configuration without code changes.",
+  "success_criteria": [
+    "console.error calls replaced with logger.debug",
+    "DEBUG_IS_GIT_REPO environment variable behavior is preserved",
+    "Logging tests pass",
+    "No regression in git repository detection functionality"
+  ],
+  "technical_constraints": [
+    "Must preserve debug-only behavior when DEBUG_IS_GIT_REPO is not set",
+    "Logger instance must be properly injected or imported",
+    "Should not add performance overhead when debug is disabled"
+  ],
+  "scope_in_scope": [
+    "src/git/validation.ts - lines 194 and 214"
+  ],
+  "scope_out_of_scope": [
+    "Other console.log/error usage in the codebase (separate issue)"
+  ],
+  "priority_hint": "low",
+  "urgency_hint": "Code quality improvement"
+}

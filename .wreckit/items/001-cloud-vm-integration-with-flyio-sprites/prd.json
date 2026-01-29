@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "id": "001-cloud-vm-integration-with-flyio-sprites",
+  "branch_name": "wreckit/001-cloud-vm-integration-with-flyio-sprites",
+  "user_stories": [
+    {
+      "id": "US-001",
+      "title": "Add helper function to get repository slug from git remote",
+      "acceptance_criteria": [
+        "Function getRepoSlug(root: string) returns repository slug (e.g., 'user/repo')",
+        "Function parses 'git remote get-url origin' output",
+        "Function handles both HTTPS URLs (https://github.com/owner/repo.git)",
+        "Function handles SSH URLs (git@github.com:owner/repo.git)",
+        "Function returns null if git command fails or URL doesn't match github.com pattern",
+        "Function is exported from src/git/remote.ts (create file if not exists)",
+        "Function uses spawn() from 'node:child_process' for git command execution",
+        "Function handles git process errors gracefully"
+      ],
+      "priority": 1,
+      "status": "done",
+      "notes": "This is a helper function needed by all CLI commands to filter sessions by repository. Check if src/git/remote.ts exists first - if not, create it. The regex pattern is: /github\\.com[:/]([^/]+\\/[^/]+?)(\\.git)?$/"
+    },
+    {
+      "id": "US-002",
+      "title": "Add CLI command for listing Fly.io Sprite sessions",
+      "acceptance_criteria": [
+        "Command 'wreckit compute sprite status' displays all Sprite sessions for current repository",
+        "Output includes: itemId, spriteId, status, createdAt, lastAccessedAt for each session",
+        "Command filters sessions by current repository slug using getRepoSlug()",
+        "Command supports '--json' flag for programmatic output",
+        "Command displays appropriate error when Sprites backend is not enabled",
+        "Command displays 'No Sprite sessions for this repository' when none exist",
+        "JSON output is valid and parseable with success, message, and data fields",
+        "Non-JSON output is human-readable with emoji indicators (📋, ✅, ❌)",
+        "Command validates config.compute.backend === 'sprites' before running"
+      ],
+      "priority": 1,
+      "status": "done",
+      "notes": "Create src/commands/computeSprite.ts with computeSpriteStatusCommand() function. Use existing SpriteSessionStore.list() method and filter by repoSlug. Register command in src/index.ts under 'wreckit compute sprite' namespace to distinguish from existing Wisp CLI commands."
+    },
+    {
+      "id": "US-003",
+      "title": "Add CLI command for resuming paused Sprite sessions",
+      "acceptance_criteria": [
+        "Command 'wreckit compute sprite resume <itemId>' changes session status to 'active'",
+        "Command updates lastAccessedAt timestamp to current time",
+        "Command requires Sprites backend to be enabled (validates config)",
+        "Command displays error if session not found for current repository",
+        "Command displays error if session already active (unless --force flag used)",
+        "Command supports '--json' flag for programmatic output",
+        "Command supports '--force' flag to resume active sessions",
+        "Success message includes itemId, spriteId, and new status",
+        "Command uses SpriteSessionStore.get() and save() methods"
+      ],
+      "priority": 1,
+      "status": "done",
+      "notes": "Add computeSpriteResumeCommand() function to src/commands/computeSprite.ts. This only updates session status - it doesn't actually run the sprite. The resume logic for reusing sprites during execution is already implemented in SpritesBackend.ensureSprite()."
+    },
+    {
+      "id": "US-004",
+      "title": "Add CLI command for destroying Sprite sessions",
+      "acceptance_criteria": [
+        "Command 'wreckit compute sprite destroy <itemId>' deletes the Fly.io Sprite VM",
+        "Command removes the session file from .wreckit/sessions/",
+        "Command loads SPRITE_TOKEN from environment or .wreckit/.sprite.env using loadSpriteEnv()",
+        "Command validates required tokens using validateSpriteEnv() before proceeding",
+        "Command requires Sprites backend to be enabled (validates config)",
+        "Command displays error if session not found for current repository",
+        "Command displays error if session still active (unless --force flag used)",
+        "Command supports '--json' flag for programmatic output",
+        "Command supports '--force' flag to destroy active sessions",
+        "Command handles Sprite deletion errors gracefully (deletes session file anyway)",
+        "Command uses SpritesClient from @fly/sprites SDK directly"
+      ],
+      "priority": 1,
+      "status": "done",
+      "notes": "Add computeSpriteDestroyCommand() function to src/commands/computeSprite.ts. The destroy logic is similar to SpritesBackend.cleanup() but callable from CLI. Must import SpritesClient and use client.deleteSprite(spriteId) method."
+    },
+    {
+      "id": "US-005",
+      "title": "Register new CLI commands in index.ts",
+      "acceptance_criteria": [
+        "New command group 'wreckit compute' exists in CLI",
+        "Subcommand 'wreckit compute sprite' exists with description 'Manage Fly.io Sprite sessions'",
+        "All three commands (status, resume, destroy) are registered under compute sprite",
+        "Commands use executeCommand() wrapper for error handling",
+        "Commands support global options (--verbose, --quiet, --dry-run, --cwd)",
+        "Commands use dynamic imports (await import(...)) for lazy loading",
+        "Commands are registered after existing sprite commands (after line 655 in src/index.ts)",
+        "Command descriptions are clear and accurate",
+        "Commands follow the same pattern as existing sprite commands"
+      ],
+      "priority": 1,
+      "status": "done",
+      "notes": "Follow the existing pattern for spriteCmd registration but create computeCmd and computeSpriteCmd to keep namespaces separate. This avoids confusion between Wisp CLI commands (wreckit sprite) and Fly.io Sprites commands (wreckit compute sprite)."
+    },
+    {
+      "id": "US-006",
+      "title": "Add iteration counter to SpritesBackend",
+      "acceptance_criteria": [
+        "SpritesBackend has private field 'iterationCount' initialized to 0",
+        "runIteration() method increments iterationCount for each call",
+        "runIteration() resets iterationCount to 0 when switching to different itemId",
+        "runIteration() yields error event if iterationCount > limits.max_iterations",
+        "Error message includes iteration count and limit value (e.g., 'Iteration limit exceeded: 4 > 3')",
+        "Error event has type: 'error' and includes timestamp",
+        "cleanup() method resets iterationCount to 0",
+        "Iteration counter persists across multiple runIteration() calls for same itemId",
+        "Limit check happens early in runIteration() before calling ensureSprite()"
+      ],
+      "priority": 2,
+      "status": "done",
+      "notes": "Add 'private iterationCount = 0;' field to SpritesBackend class alongside existing fields (activeSprite, currentItemId, succeeded). The check should happen at the start of runIteration() to avoid creating sprites if limit already exceeded."
+    },
+    {
+      "id": "US-007",
+      "title": "Add integration tests for session persistence",
+      "acceptance_criteria": [
+        "Test file src/__tests__/integration/sprites-backend.integration.test.ts exists",
+        "Tests cover complete save/get/delete lifecycle",
+        "Tests cover list() with multiple sessions from different repos",
+        "Tests cover filtering sessions by repository slug",
+        "Tests use temporary test directory (via fs.mkdtemp)",
+        "Tests clean up test directory after completion in afterEach",
+        "Tests use Bun test framework (describe, test, expect, beforeEach, afterEach)",
+        "All tests pass with 'npm test' command",
+        "Tests are independent and can run in any order"
+      ],
+      "priority": 2,
+      "status": "done",
+      "notes": "Focus on session store integration testing. The actual @fly/sprites SDK mocking already exists in src/__tests__/compute/sprites-backend.test.ts. Create new test file in src/__tests__/integration/ directory (create directory if not exists)."
+    },
+    {
+      "id": "US-008",
+      "title": "Add placeholder tests for CLI commands",
+      "acceptance_criteria": [
+        "Test file src/__tests__/commands/compute-sprite.test.ts exists",
+        "Test file has describe blocks for all three commands (status, resume, destroy)",
+        "Placeholder tests exist for each command (can be TODO tests that always pass)",
+        "Test structure follows existing CLI command test patterns",
+        "Test file can be run with 'npm test' without errors",
+        "Tests provide framework for future implementation"
+      ],
+      "priority": 3,
+      "status": "done",
+      "notes": "CLI tests require mocking console.log/console.error and file system, which is complex. For now, create placeholder tests that establish the test structure. Full CLI tests can be implemented later. These tests are lower priority than the implementation itself."
+    },
+    {
+      "id": "US-009",
+      "title": "Create manual testing documentation",
+      "acceptance_criteria": [
+        "File TESTING.md exists in item directory (.wreckit/items/001-cloud-vm-integration-with-flyio-sprites/TESTING.md)",
+        "Document lists prerequisites (Fly.io account, SPRITE_TOKEN, GITHUB_TOKEN)",
+        "Document includes setup instructions for config and environment tokens",
+        "Document includes test cases for all three CLI commands (status, resume, destroy)",
+        "Document includes test case for iteration limit enforcement",
+        "Document includes test case for JSON output validation",
+        "Document includes cleanup instructions for test Sprites",
+        "Document includes troubleshooting section with common errors",
+        "All test cases include expected outputs",
+        "All test cases are reproducible by following the documentation step-by-step"
+      ],
+      "priority": 3,
+      "status": "done",
+      "notes": "This is for manual verification after all automated tests pass. The testing guide should be comprehensive enough that someone unfamiliar with the feature can follow it step-by-step to verify everything works. Include setup, test cases, cleanup, and troubleshooting sections."
+    }
+  ]
+}

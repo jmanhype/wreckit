@@ -30,6 +30,50 @@ export const BranchCleanupSchema = z.object({
 });
 
 // ============================================================
+// Compute Backend Schemas (Item 073+)
+// ============================================================
+
+export const ComputeBackendSchema = z.enum(["local", "sprites"]);
+
+export const SpritesConfigSchema = z.object({
+  enabled: z.boolean().default(false),
+  name_prefix: z.string().default("wreckit"),
+  auto_delete: z.boolean().default(true),
+  resume: z.boolean().default(true),
+  workdir: z.string().default("/var/local/wreckit"),
+  env_file: z.string().default(".wreckit/.sprite.env"),
+  copy_claude_credentials: z.boolean().default(false),
+  github: z.object({
+    use_token_for_clone: z.boolean().default(true),
+    git_user_name: z.string().default("wreckit"),
+    git_user_email: z.string().default("wreckit@users.noreply.github.com"),
+  }).default(() => ({
+    use_token_for_clone: true,
+    git_user_name: "wreckit",
+    git_user_email: "wreckit@users.noreply.github.com",
+  })),
+  sync: z.object({
+    upload_paths: z.array(z.string()).default([".wreckit/config.json", ".wreckit/items"]),
+    download_paths: z.array(z.string()).default([".wreckit/items", ".wreckit/logs"]),
+  }).default(() => ({
+    upload_paths: [".wreckit/config.json", ".wreckit/items"],
+    download_paths: [".wreckit/items", ".wreckit/logs"],
+  })),
+});
+
+export const ComputeConfigSchema = z.object({
+  backend: ComputeBackendSchema.default("local"),
+  sprites: SpritesConfigSchema.optional(),
+});
+
+export const LimitsConfigSchema = z.object({
+  max_iterations: z.number().default(100),
+  max_duration_hours: z.number().default(4),
+  max_budget_usd: z.number().default(20),
+  no_progress_threshold: z.number().default(3),
+});
+
+// ============================================================
 // Agent Abstraction - Discriminated Union Schemas (Phase 4)
 // Must be defined BEFORE ConfigSchema since it references them
 // ============================================================
@@ -277,8 +321,13 @@ export const StoryScopeConfigSchema = z
   })
   .strict();
 
+// ============================================================
+// Main Config Schema
+// ============================================================
+
 export const ConfigSchema = z.object({
   schema_version: z.number().default(1),
+  wispPath: z.string().default("sprite"),
   base_branch: z.string().default("main"),
   branch_prefix: z.string().default("wreckit/"),
   merge_mode: MergeModeSchema.default("pr"),
@@ -292,6 +341,9 @@ export const ConfigSchema = z.object({
   skills: SkillConfigSchema.optional(),
   // Add optional doctor configuration (Item 038)
   doctor: DoctorConfigSchema.optional(),
+  // Add optional compute configuration (feature/sprites)
+  compute: ComputeConfigSchema.optional(),
+  limits: LimitsConfigSchema.optional(),
   // Add optional story scope configuration (Item 084)
   story_scope: StoryScopeConfigSchema.optional(),
 });
@@ -397,6 +449,10 @@ export const BatchProgressSchema = z.object({
 export type WorkflowState = z.infer<typeof ItemStateSchema>;
 export type StoryStatus = z.infer<typeof StoryStatusSchema>;
 export type MergeMode = z.infer<typeof MergeModeSchema>;
+export type ComputeBackend = z.infer<typeof ComputeBackendSchema>;
+export type SpritesConfig = z.infer<typeof SpritesConfigSchema>;
+export type ComputeConfig = z.infer<typeof ComputeConfigSchema>;
+export type LimitsConfig = z.infer<typeof LimitsConfigSchema>;
 export type Config = z.infer<typeof ConfigSchema>;
 export type LegacyAgentConfig = z.infer<typeof LegacyAgentConfigSchema>;
 export type Item = z.infer<typeof ItemSchema>;

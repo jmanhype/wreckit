@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "103-dreamer-replace-error-any-with-proper-error-types-",
+  "title": "[DREAMER] Replace error: any with proper error types in catch blocks",
+  "section": "architecture",
+  "state": "idea",
+  "overview": "The codebase has widespread use of 'catch (error: any)' patterns (e.g., src/git/scope.ts:226, src/agent/remote-tools.ts:69, src/agent/env.ts:50, src/commands/learn.ts:290). This silences TypeScript errors and can lead to accessing non-existent properties or mishandling error types. At least 15 instances exist in production code.\n\n**Motivation:** Using 'any' in catch blocks is a well-known anti-pattern in TypeScript. It prevents the compiler from catching errors where code assumes error properties exist. This leads to runtime errors and makes refactoring error handling dangerous. The pattern is so prevalent that it suggests a lack of error type standards in the codebase.\n\n**Success criteria:**\n- Define typed error classes for common error scenarios (FileError, NetworkError, ValidationError, etc.)\n- Replace all 'catch (error: any)' with properly typed catches\n- Use type guards or instanceof checks for error discrimination\n- Ensure error.message and error.stack are safely accessed\n- Add tests verifying error handling works with actual error types\n- No remaining 'error: any' patterns in src/ directory\n\n**Technical constraints:**\n- Must maintain backward compatibility with existing error handling logic\n- Some external libraries throw untyped errors - need generic fallback\n- Cannot break existing error propagation patterns\n- WreckitError class already exists - should extend or use it\n\n**In scope:**\n- src/git/scope.ts error handling\n- src/agent/remote-tools.ts all catch blocks\n- src/agent/env.ts error handling\n- src/commands/learn.ts error handling\n- Other src/ files with error: any\n**Out of scope:**\n- Test files (may use any for mocks)\n- Third-party library integration points where error types are unknown\n\n**Signals:** priority: high, urgency: Type safety is critical for maintenance. Each 'any' is a potential runtime error waiting to happen.",
+  "branch": null,
+  "pr_url": null,
+  "pr_number": null,
+  "last_error": null,
+  "created_at": "2026-01-29T03:16:19.348Z",
+  "updated_at": "2026-01-29T03:16:19.348Z",
+  "problem_statement": "The codebase has widespread use of 'catch (error: any)' patterns (e.g., src/git/scope.ts:226, src/agent/remote-tools.ts:69, src/agent/env.ts:50, src/commands/learn.ts:290). This silences TypeScript errors and can lead to accessing non-existent properties or mishandling error types. At least 15 instances exist in production code.",
+  "motivation": "Using 'any' in catch blocks is a well-known anti-pattern in TypeScript. It prevents the compiler from catching errors where code assumes error properties exist. This leads to runtime errors and makes refactoring error handling dangerous. The pattern is so prevalent that it suggests a lack of error type standards in the codebase.",
+  "success_criteria": [
+    "Define typed error classes for common error scenarios (FileError, NetworkError, ValidationError, etc.)",
+    "Replace all 'catch (error: any)' with properly typed catches",
+    "Use type guards or instanceof checks for error discrimination",
+    "Ensure error.message and error.stack are safely accessed",
+    "Add tests verifying error handling works with actual error types",
+    "No remaining 'error: any' patterns in src/ directory"
+  ],
+  "technical_constraints": [
+    "Must maintain backward compatibility with existing error handling logic",
+    "Some external libraries throw untyped errors - need generic fallback",
+    "Cannot break existing error propagation patterns",
+    "WreckitError class already exists - should extend or use it"
+  ],
+  "scope_in_scope": [
+    "src/git/scope.ts error handling",
+    "src/agent/remote-tools.ts all catch blocks",
+    "src/agent/env.ts error handling",
+    "src/commands/learn.ts error handling",
+    "Other src/ files with error: any"
+  ],
+  "scope_out_of_scope": [
+    "Test files (may use any for mocks)",
+    "Third-party library integration points where error types are unknown"
+  ],
+  "priority_hint": "high",
+  "urgency_hint": "Type safety is critical for maintenance. Each 'any' is a potential runtime error waiting to happen."
+}

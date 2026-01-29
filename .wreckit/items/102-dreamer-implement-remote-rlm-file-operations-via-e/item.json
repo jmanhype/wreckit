@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "102-dreamer-implement-remote-rlm-file-operations-via-e",
+  "title": "[DREAMER] Implement remote RLM file operations via executor",
+  "section": "agent-development",
+  "state": "idea",
+  "overview": "In rlm-tools.ts:102-108, there's a TODO noting: 'For remote RLM, this should use cat via executor if remote'. The current implementation keeps Read/Write as local operations (lines 156-179) while Bash executes remotely. This inconsistency causes the 'split brain' problem documented in the code comments - 'ls' shows files exist remotely but 'Read' fails if they're not synced locally.\n\n**Motivation:** The TODO has been in place since the RLM implementation was added. Without proper remote file operations, RLM agents running locally with remote Sprite VMs will have inconsistent views of the filesystem. This breaks the agent's ability to reliably read and write files in the remote environment.\n\n**Success criteria:**\n- Remove TODO comment at src/agent/rlm-tools.ts:102\n- Implement Read tool using executor('cat') for remote file reads\n- Implement Write tool using remote-safe method (likely node script or improved shell escaping)\n- Update Edit tool to use remote operations\n- All RLM tools consistently use executor for file I/O when in remote mode\n- Tests verify remote file operations work correctly with Sprite VMs\n\n**Technical constraints:**\n- Must maintain backward compatibility with local RLM execution\n- Need to detect whether RLM is running in remote vs local mode\n- Shell escaping for file writes is complex - may need to use base64 encoding or temporary node scripts\n- Bi-directional sync timing must be considered\n- Cannot break existing RLM workflows\n\n**In scope:**\n- src/agent/rlm-tools.ts Read/Write/Edit tool implementations\n- Remote mode detection logic\n- Tests for remote file operations\n**Out of scope:**\n- Bash tool (already uses executor)\n- RLM runner orchestration\n- Sprite sync mechanisms\n\n**Signals:** priority: medium, urgency: The TODO indicates this is known technical debt. While currently functional (due to sync workaround), it's architecturally incomplete and could cause bugs.",
+  "branch": null,
+  "pr_url": null,
+  "pr_number": null,
+  "last_error": null,
+  "created_at": "2026-01-29T03:16:19.347Z",
+  "updated_at": "2026-01-29T03:16:19.347Z",
+  "problem_statement": "In rlm-tools.ts:102-108, there's a TODO noting: 'For remote RLM, this should use cat via executor if remote'. The current implementation keeps Read/Write as local operations (lines 156-179) while Bash executes remotely. This inconsistency causes the 'split brain' problem documented in the code comments - 'ls' shows files exist remotely but 'Read' fails if they're not synced locally.",
+  "motivation": "The TODO has been in place since the RLM implementation was added. Without proper remote file operations, RLM agents running locally with remote Sprite VMs will have inconsistent views of the filesystem. This breaks the agent's ability to reliably read and write files in the remote environment.",
+  "success_criteria": [
+    "Remove TODO comment at src/agent/rlm-tools.ts:102",
+    "Implement Read tool using executor('cat') for remote file reads",
+    "Implement Write tool using remote-safe method (likely node script or improved shell escaping)",
+    "Update Edit tool to use remote operations",
+    "All RLM tools consistently use executor for file I/O when in remote mode",
+    "Tests verify remote file operations work correctly with Sprite VMs"
+  ],
+  "technical_constraints": [
+    "Must maintain backward compatibility with local RLM execution",
+    "Need to detect whether RLM is running in remote vs local mode",
+    "Shell escaping for file writes is complex - may need to use base64 encoding or temporary node scripts",
+    "Bi-directional sync timing must be considered",
+    "Cannot break existing RLM workflows"
+  ],
+  "scope_in_scope": [
+    "src/agent/rlm-tools.ts Read/Write/Edit tool implementations",
+    "Remote mode detection logic",
+    "Tests for remote file operations"
+  ],
+  "scope_out_of_scope": [
+    "Bash tool (already uses executor)",
+    "RLM runner orchestration",
+    "Sprite sync mechanisms"
+  ],
+  "priority_hint": "medium",
+  "urgency_hint": "The TODO indicates this is known technical debt. While currently functional (due to sync workaround), it's architecturally incomplete and could cause bugs."
+}

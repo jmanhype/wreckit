@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "003-token-management-with-precedence-hierarchy",
+  "title": "Token management with precedence hierarchy",
+  "section": "backend",
+  "state": "idea",
+  "overview": "Support loading SPRITE_TOKEN and GITHUB_TOKEN from multiple sources (process.env, .sprite.env file, config.local.json) with clear precedence rules.\n\n**Motivation:** Provides flexibility in token management while maintaining security and convenience.\n\n**Success criteria:**\n- Tokens loadable from environment variables\n- Tokens loadable from `.wreckit/.sprite.env` file\n- Tokens loadable from `.wreckit/config.local.json`\n- Precedence: config.local.json > process.env > .sprite.env\n- Clear error messages when required tokens are missing\n\n**Signals:** priority: medium",
+  "branch": null,
+  "pr_url": null,
+  "pr_number": null,
+  "last_error": null,
+  "created_at": "2026-01-22T18:39:42.080Z",
+  "updated_at": "2026-01-22T18:39:42.080Z",
+  "motivation": "Provides flexibility in token management while maintaining security and convenience.",
+  "success_criteria": [
+    "Tokens loadable from environment variables",
+    "Tokens loadable from `.wreckit/.sprite.env` file",
+    "Tokens loadable from `.wreckit/config.local.json`",
+    "Precedence: config.local.json > process.env > .sprite.env",
+    "Clear error messages when required tokens are missing"
+  ],
+  "priority_hint": "medium"
+}

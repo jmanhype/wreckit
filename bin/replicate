@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# bin/replicate - Create a reproductive spore of the system
+echo "🧬 Initiating Replication Sequence..."
+
+# 1. Build the Spore
+echo "🔨 Building Spore Image (this may take time)..."
+docker build -f Dockerfile.spore -t cybernetic-spore:latest .
+
+if [ $? -eq 0 ]; then
+    echo "✅ Spore Created: cybernetic-spore:latest"
+    echo ""
+    echo "To plant this spore in a new environment:"
+    echo "  docker run -d \
+"
+    echo "    -p 4000:4000 \
+"
+    echo "    -e ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY \
+"
+    echo "    cybernetic-spore:latest"
+    echo ""
+    echo "The system will immediately wake up, dream, and start coding."
+else
+    echo "❌ Replication Failed."
+    exit 1
+fi

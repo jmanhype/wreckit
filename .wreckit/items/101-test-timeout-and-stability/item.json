@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "101-test-timeout-and-stability",
+  "title": "Test Timeout and Stability",
+  "section": "items",
+  "state": "critique",
+  "overview": "Create a simple 'hello world' file to verify the agent can complete a cycle without crashing or timing out.",
+  "branch": "wreckit/101-test-timeout-and-stability",
+  "pr_url": null,
+  "pr_number": null,
+  "last_error": null,
+  "created_at": "2026-01-29T00:40:00Z",
+  "updated_at": "2026-01-29T00:44:40.012Z"
+}

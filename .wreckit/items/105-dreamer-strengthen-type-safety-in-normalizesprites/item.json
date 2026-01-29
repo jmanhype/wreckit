@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "105-dreamer-strengthen-type-safety-in-normalizesprites",
+  "title": "[DREAMER] Strengthen type safety in normalizeSprites function",
+  "section": "agent-development",
+  "state": "idea",
+  "overview": "Function signature is 'function normalizeSprites(data: any): any' and uses '(s: any)' in the map callback. This prevents TypeScript from validating that sprite objects have the correct structure. The function handles API responses that should be properly typed.\n\n**Motivation:** The normalizeSprites function is critical for translating between API responses (with 'status' field) and internal representation (with 'state' field). Using 'any' means structural changes in the API won't be caught by TypeScript, potentially causing runtime errors. The function should use proper sprite types to ensure correctness.\n\n**Success criteria:**\n- Define SpriteApiResponse type for API response format\n- Define NormalizedSprite type for internal format\n- Update normalizeSprites signature to use proper types\n- Add type guards for validating API response structure\n- Add tests verifying type safety catches API format changes\n- Remove all 'any' types from normalizeSprites\n\n**Technical constraints:**\n- API format may vary - need to handle missing fields gracefully\n- Cannot break existing sprite operations\n- Must maintain backward compatibility with API responses\n\n**In scope:**\n- src/agent/sprite-core.ts normalizeSprites function\n- Related sprite type definitions\n- Tests for sprite normalization\n**Out of scope:**\n- Sprite execution logic\n- Other normalization functions unless they have similar issues\n\n**Signals:** priority: medium, urgency: Sprite integration is a key feature. Type safety prevents API changes from breaking production.",
+  "branch": null,
+  "pr_url": null,
+  "pr_number": null,
+  "last_error": null,
+  "created_at": "2026-01-29T03:16:19.350Z",
+  "updated_at": "2026-01-29T03:16:19.350Z",
+  "problem_statement": "Function signature is 'function normalizeSprites(data: any): any' and uses '(s: any)' in the map callback. This prevents TypeScript from validating that sprite objects have the correct structure. The function handles API responses that should be properly typed.",
+  "motivation": "The normalizeSprites function is critical for translating between API responses (with 'status' field) and internal representation (with 'state' field). Using 'any' means structural changes in the API won't be caught by TypeScript, potentially causing runtime errors. The function should use proper sprite types to ensure correctness.",
+  "success_criteria": [
+    "Define SpriteApiResponse type for API response format",
+    "Define NormalizedSprite type for internal format",
+    "Update normalizeSprites signature to use proper types",
+    "Add type guards for validating API response structure",
+    "Add tests verifying type safety catches API format changes",
+    "Remove all 'any' types from normalizeSprites"
+  ],
+  "technical_constraints": [
+    "API format may vary - need to handle missing fields gracefully",
+    "Cannot break existing sprite operations",
+    "Must maintain backward compatibility with API responses"
+  ],
+  "scope_in_scope": [
+    "src/agent/sprite-core.ts normalizeSprites function",
+    "Related sprite type definitions",
+    "Tests for sprite normalization"
+  ],
+  "scope_out_of_scope": [
+    "Sprite execution logic",
+    "Other normalization functions unless they have similar issues"
+  ],
+  "priority_hint": "medium",
+  "urgency_hint": "Sprite integration is a key feature. Type safety prevents API changes from breaking production."
+}

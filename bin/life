@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+# bin/life - The Heartbeat of the Cybernetic System
+# Usage: ./bin/life [--interval SECONDS]
+
+INTERVAL=${1:-300} # Default 5 minutes sleep
+LOG_FILE="life.log"
+
+echo "🟢 System Online. Initializing Life Cycle..." | tee -a $LOG_FILE
+
+while true; do
+    TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    echo "==================================================" | tee -a $LOG_FILE
+    echo "⏰ Cycle Start: $TIMESTAMP" | tee -a $LOG_FILE
+    
+    # 1. DREAM (Teleology)
+    echo "🧠 Phase 1: Dreaming (Consulting S4)..." | tee -a $LOG_FILE
+    # Using --verbose for granular operator visibility
+    ./dist/index.js dream --max-items 1 --verbose | tee -a $LOG_FILE
+    
+    # 2. ACT (Implementation)
+    # Check if there are active items (planned, implementing, critique, researching)
+    # We grep all item.json files for these states
+    ACTIVE_COUNT=$(grep -r "\"state\":" .wreckit/items | grep -vE "done|idea" | wc -l)
+    
+    if [ "$ACTIVE_COUNT" -gt "0" ]; then
+        echo "💪 Phase 2: Acting ($ACTIVE_COUNT tasks active)..." | tee -a $LOG_FILE
+        # ENABLED AUTONOMY with VERBOSE LOGGING
+        ./dist/index.js next --verbose --sandbox | tee -a $LOG_FILE
+    else
+        echo "💤 Phase 2: No active tasks. Checking for ideas..." | tee -a $LOG_FILE
+        # Auto-Promote: Find first directory containing an "idea" item.json
+        # We look for the literal string "state": "idea"
+        NEXT_ITEM_JSON=$(grep -rl "\"state\": \"idea\"" .wreckit/items | head -n 1)
+        
+        if [ -n "$NEXT_ITEM_JSON" ]; then
+            ITEM_ID=$(basename $(dirname "$NEXT_ITEM_JSON"))
+            echo "🚀 Auto-Promoting Idea $ITEM_ID to planned..." | tee -a $LOG_FILE
+            # Manual state patch
+            sed -i '' 's/"state": "idea"/"state": "planned"/' "$NEXT_ITEM_JSON"
+            echo "💪 Phase 2: Acting (Implementing Promoted Strategy)..." | tee -a $LOG_FILE
+            ./dist/index.js next --verbose --sandbox | tee -a $LOG_FILE
+        else
+            echo "EMPTY MIND: No ideas found. Dreaming harder next time." | tee -a $LOG_FILE
+        fi
+    fi
+
+    # 3. HEAL (Maintenance)
+    echo "❤️ Phase 3: Healing (Running Doctor)..." | tee -a $LOG_FILE
+    cd cybernetic-system && source .env && mix cyb.doctor >> ../$LOG_FILE 2>&1
+    cd ..
+
+    echo "✅ Cycle Complete." | tee -a $LOG_FILE
+    echo "sleeping for $INTERVAL seconds..."
+    sleep $INTERVAL
+done

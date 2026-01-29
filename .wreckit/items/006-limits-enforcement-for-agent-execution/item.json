@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "id": "006-limits-enforcement-for-agent-execution",
+  "title": "Limits enforcement for agent execution",
+  "section": "backend",
+  "state": "idea",
+  "overview": "Implement configurable limits for max iterations, max duration, max budget USD, and no-progress threshold to prevent runaway agent execution or excessive costs.\n\n**Motivation:** Prevents resource waste and cost overruns from agent tasks that hang or loop indefinitely.\n\n**Success criteria:**\n- max_iterations stops loop after limit\n- max_duration_hours stops loop after time limit\n- max_budget_usd warns when exceeded\n- no_progress_threshold stops after no changes\n- Limits configurable per implementation\n\n**Signals:** priority: medium",
+  "branch": null,
+  "pr_url": null,
+  "pr_number": null,
+  "last_error": null,
+  "created_at": "2026-01-22T18:39:42.083Z",
+  "updated_at": "2026-01-22T18:39:42.083Z",
+  "motivation": "Prevents resource waste and cost overruns from agent tasks that hang or loop indefinitely.",
+  "success_criteria": [
+    "max_iterations stops loop after limit",
+    "max_duration_hours stops loop after time limit",
+    "max_budget_usd warns when exceeded",
+    "no_progress_threshold stops after no changes",
+    "Limits configurable per implementation"
+  ],
+  "priority_hint": "medium"
+}

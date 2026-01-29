@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "104-dreamer-add-proper-typescript-types-to-yargs-comma",
+  "title": "[DREAMER] Add proper TypeScript types to yargs command handlers",
+  "section": "cli",
+  "state": "idea",
+  "overview": "In watchdog.ts, the command builder and handler functions use 'any' types for yargs and argv parameters. This prevents TypeScript from validating that the correct options are defined and accessed. It's a recurring pattern in CLI commands that should use yargs' type inference capabilities.\n\n**Motivation:** Yargs has excellent TypeScript support when used correctly. Using 'any' defeats this and means typos in option names won't be caught at compile time. This increases the risk of runtime errors in CLI commands. The watchdog command is likely not the only offender - a systematic audit of all CLI commands is needed.\n\n**Success criteria:**\n- Define proper Yargs Arguments types for watchdog command options\n- Replace 'argv: any' with typed parameter\n- Replace 'yargs: any' with properly typed builder pattern\n- Audit all other CLI commands for similar patterns\n- Add linting rule to prevent 'any' in yargs handlers\n- All CLI commands use type-safe option parsing\n\n**Technical constraints:**\n- Must maintain existing CLI behavior\n- Yargs type inference can be complex - need to use utility types correctly\n- Some options may be dynamically added - need union types or utility types\n\n**In scope:**\n- src/commands/watchdog.ts type annotations\n- Audit of other CLI commands for similar issues\n- Documentation of proper yargs TypeScript patterns\n**Out of scope:**\n- Commands that already use proper typing\n- Non-CLI code\n\n**Signals:** priority: medium, urgency: Type safety in CLI surface prevents user-facing bugs from typos.",
+  "branch": null,
+  "pr_url": null,
+  "pr_number": null,
+  "last_error": null,
+  "created_at": "2026-01-29T03:16:19.349Z",
+  "updated_at": "2026-01-29T03:16:19.349Z",
+  "problem_statement": "In watchdog.ts, the command builder and handler functions use 'any' types for yargs and argv parameters. This prevents TypeScript from validating that the correct options are defined and accessed. It's a recurring pattern in CLI commands that should use yargs' type inference capabilities.",
+  "motivation": "Yargs has excellent TypeScript support when used correctly. Using 'any' defeats this and means typos in option names won't be caught at compile time. This increases the risk of runtime errors in CLI commands. The watchdog command is likely not the only offender - a systematic audit of all CLI commands is needed.",
+  "success_criteria": [
+    "Define proper Yargs Arguments types for watchdog command options",
+    "Replace 'argv: any' with typed parameter",
+    "Replace 'yargs: any' with properly typed builder pattern",
+    "Audit all other CLI commands for similar patterns",
+    "Add linting rule to prevent 'any' in yargs handlers",
+    "All CLI commands use type-safe option parsing"
+  ],
+  "technical_constraints": [
+    "Must maintain existing CLI behavior",
+    "Yargs type inference can be complex - need to use utility types correctly",
+    "Some options may be dynamically added - need union types or utility types"
+  ],
+  "scope_in_scope": [
+    "src/commands/watchdog.ts type annotations",
+    "Audit of other CLI commands for similar issues",
+    "Documentation of proper yargs TypeScript patterns"
+  ],
+  "scope_out_of_scope": [
+    "Commands that already use proper typing",
+    "Non-CLI code"
+  ],
+  "priority_hint": "medium",
+  "urgency_hint": "Type safety in CLI surface prevents user-facing bugs from typos."
+}

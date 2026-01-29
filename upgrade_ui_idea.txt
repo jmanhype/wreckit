@@ -1,0 +1,12 @@
+Title: Upgrade Cybernetic Dashboard UI
+Overview: The current 'Cybernetic Command Center' (HomeLive) is a basic prototype. We need to upgrade it to a production-grade, high-fidelity Sci-Fi interface.
+Requirements:
+1. **Visual Polish:** Improve the CSS/styling to look like a futuristic HUD (Head-Up Display). Use a consistent color palette (Neon Green/Black/Dark Grey).
+2. **Real-time Charts:** Integrate a charting library (e.g., lightweight SVG charts or CSS-based bars) to visualize the 'Stability' and 'Health' metrics over time.
+3. **Interactive Terminal:** Make the 'Heartbeat Stream' log viewer scrollable and auto-stick to the bottom. Add a pause/resume button.
+4. **Responsive Layout:** Ensure the grid adapts to window resizing.
+5. **System Visualization:** Enhance the 'Viable System State' (S1-S5) with a graphical diagram instead of just a list.
+
+Source: user
+Type: feature
+Impact: high

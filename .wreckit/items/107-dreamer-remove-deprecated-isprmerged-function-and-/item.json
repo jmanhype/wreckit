@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "107-dreamer-remove-deprecated-isprmerged-function-and-",
+  "title": "[DREAMER] Remove deprecated isPrMerged function and migrate to getPrDetails",
+  "section": "git",
+  "state": "idea",
+  "overview": "Deprecated code remains in the codebase, creating maintenance burden and potential confusion for developers. The `@deprecated` annotation suggests this should have been removed but wasn't.\n\n**Motivation:** Reducing technical debt improves code maintainability and reduces cognitive load. Deprecated functions that linger can cause confusion about which functions to use, and may lead to using less-capable APIs.\n\n**Success criteria:**\n- All usages of `isPrMerged` are migrated to use `getPrDetails`\n- The deprecated `isPrMerged` function is removed from `src/git/pr.ts`\n- All tests pass after migration\n- No functionality is lost - `getPrDetails` provides equivalent or better validation\n\n**Technical constraints:**\n- Must maintain backward compatibility during migration\n- Need to verify all call sites work with `getPrDetails` return type\n- Test coverage must be preserved or improved\n\n**In scope:**\n- src/git/pr.ts - remove isPrMerged function\n- src/git/index.ts - update exports\n- src/workflow/itemWorkflow.ts - migrate usage\n- Test files that import or mock isPrMerged\n**Out of scope:**\n- Changes to getPrDetails implementation\n- Changes to PR validation logic itself\n\n**Signals:** priority: medium, urgency: Technical debt cleanup",
+  "branch": null,
+  "pr_url": null,
+  "pr_number": null,
+  "last_error": null,
+  "created_at": "2026-01-29T03:20:52.747Z",
+  "updated_at": "2026-01-29T03:20:52.747Z",
+  "problem_statement": "Deprecated code remains in the codebase, creating maintenance burden and potential confusion for developers. The `@deprecated` annotation suggests this should have been removed but wasn't.",
+  "motivation": "Reducing technical debt improves code maintainability and reduces cognitive load. Deprecated functions that linger can cause confusion about which functions to use, and may lead to using less-capable APIs.",
+  "success_criteria": [
+    "All usages of `isPrMerged` are migrated to use `getPrDetails`",
+    "The deprecated `isPrMerged` function is removed from `src/git/pr.ts`",
+    "All tests pass after migration",
+    "No functionality is lost - `getPrDetails` provides equivalent or better validation"
+  ],
+  "technical_constraints": [
+    "Must maintain backward compatibility during migration",
+    "Need to verify all call sites work with `getPrDetails` return type",
+    "Test coverage must be preserved or improved"
+  ],
+  "scope_in_scope": [
+    "src/git/pr.ts - remove isPrMerged function",
+    "src/git/index.ts - update exports",
+    "src/workflow/itemWorkflow.ts - migrate usage",
+    "Test files that import or mock isPrMerged"
+  ],
+  "scope_out_of_scope": [
+    "Changes to getPrDetails implementation",
+    "Changes to PR validation logic itself"
+  ],
+  "priority_hint": "medium",
+  "urgency_hint": "Technical debt cleanup"
+}
