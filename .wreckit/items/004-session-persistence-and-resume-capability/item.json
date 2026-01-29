@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "004-session-persistence-and-resume-capability",
+  "title": "Session persistence and resume capability",
+  "section": "backend",
+  "state": "idea",
+  "overview": "Long-running agent tasks may be interrupted and need to resume without losing progress or leaving orphaned resources.\n\n**Motivation:** Enables recovery from interruptions and prevents resource waste from orphaned cloud VMs.\n\n**Success criteria:**\n- Session state saved to disk on sprite creation\n- Session lastAccessedAt updated on touch\n- Resume reuses existing sprite if still running\n- Resume creates new sprite if deleted\n- Sessions tracked per repoSlug\n- Cleanup removes both sprite and session file\n\n**Technical constraints:**\n- Session files stored in `.wreckit/sessions/`\n- Must handle concurrent sessions for multiple items\n\n**Signals:** priority: high",
+  "branch": null,
+  "pr_url": null,
+  "pr_number": null,
+  "last_error": null,
+  "created_at": "2026-01-22T18:39:42.080Z",
+  "updated_at": "2026-01-22T18:39:42.080Z",
+  "problem_statement": "Long-running agent tasks may be interrupted and need to resume without losing progress or leaving orphaned resources.",
+  "motivation": "Enables recovery from interruptions and prevents resource waste from orphaned cloud VMs.",
+  "success_criteria": [
+    "Session state saved to disk on sprite creation",
+    "Session lastAccessedAt updated on touch",
+    "Resume reuses existing sprite if still running",
+    "Resume creates new sprite if deleted",
+    "Sessions tracked per repoSlug",
+    "Cleanup removes both sprite and session file"
+  ],
+  "technical_constraints": [
+    "Session files stored in `.wreckit/sessions/`",
+    "Must handle concurrent sessions for multiple items"
+  ],
+  "priority_hint": "high"
+}

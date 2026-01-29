@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "005-file-sync-between-local-and-remote-vm",
+  "title": "File sync between local and remote VM",
+  "section": "backend",
+  "state": "idea",
+  "overview": "Agent needs access to local config and items, and must retrieve generated artifacts from remote VM.\n\n**Motivation:** Enables agent to work with local files while running remotely and retrieve results.\n\n**Success criteria:**\n- Upload paths configurable\n- Download paths configurable\n- Files Base64-encoded for transfer\n- Large files (>10MB) sync correctly\n- Binary integrity preserved\n- Unicode filenames handled\n- Deep nested paths (10+ levels) work\n\n**Technical constraints:**\n- Base64 encoding for all file transfers\n- Uses Fly.io API for file operations\n\n**Signals:** priority: medium",
+  "branch": null,
+  "pr_url": null,
+  "pr_number": null,
+  "last_error": null,
+  "created_at": "2026-01-22T18:39:42.082Z",
+  "updated_at": "2026-01-22T18:39:42.082Z",
+  "problem_statement": "Agent needs access to local config and items, and must retrieve generated artifacts from remote VM.",
+  "motivation": "Enables agent to work with local files while running remotely and retrieve results.",
+  "success_criteria": [
+    "Upload paths configurable",
+    "Download paths configurable",
+    "Files Base64-encoded for transfer",
+    "Large files (>10MB) sync correctly",
+    "Binary integrity preserved",
+    "Unicode filenames handled",
+    "Deep nested paths (10+ levels) work"
+  ],
+  "technical_constraints": [
+    "Base64 encoding for all file transfers",
+    "Uses Fly.io API for file operations"
+  ],
+  "priority_hint": "medium"
+}

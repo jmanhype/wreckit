@@ -20,6 +20,7 @@ import { executeRoadmapCommand } from "./commands/execute-roadmap";
 import { learnCommand } from "./commands/learn";
 import { dreamCommand } from "./commands/dream";
 import { summarizeCommand } from "./commands/summarize";
+import { createSpriteCommand } from "./commands/sprite";
 // import { sdkInfoCommand } from "./commands/sdk-info";
 import { runOnboardingIfNeeded } from "./onboarding";
 import { resolveId } from "./domain/resolveId";
@@ -49,7 +50,8 @@ program
   .option("--no-healing", "Disable automatic self-healing (Item 038)")
   .option("--cwd <path>", "Override the working directory")
   .option("--agent <kind>", "Agent kind to use (claude_sdk, amp_sdk, codex_sdk, opencode_sdk, rlm)")
-  .option("--rlm", "Shorthand for --agent rlm");
+  .option("--rlm", "Shorthand for --agent rlm")
+  .option("--sandbox", "Run in isolated Sprite VM with automatic cleanup (implies --agent rlm)");
 
 program.action(async () => {
   const opts = program.opts();
@@ -66,8 +68,9 @@ program.action(async () => {
         return;
       }
 
-      // Determine agent kind from flags (--rlm takes precedence over --agent)
-      const agentKind = opts.rlm ? "rlm" : opts.agent;
+      // Determine agent kind from flags
+      // --sandbox implies rlm agent in a sprite VM
+      let agentKind = opts.rlm || opts.sandbox ? "rlm" : opts.agent;
 
       const result = await orchestrateAll(
         {
@@ -82,6 +85,7 @@ program.action(async () => {
           retryFailed: opts.retryFailed,
           noHealing: opts.noHealing, // Pass through --no-healing flag (Item 038)
           agentKind, // Pass agent kind override
+          sandbox: opts.sandbox, // Pass sandbox flag
         },
         logger
       );
@@ -557,23 +561,6 @@ program
     );
   });
 
-// program
-//   .command("sdk-info")
-//   .description("Display Claude SDK configuration and account info")
-//   .action(async (_options, cmd) => {
-//     const globalOpts = cmd.optsWithGlobals();
-//     await executeCommand(
-//       async () => {
-//         await sdkInfoCommand({}, logger);
-//       },
-//       logger,
-//       {
-//         verbose: globalOpts.verbose,
-//         quiet: globalOpts.quiet,
-//       }
-//     );
-//   });
-
 program
   .command("strategy")
   .description("Analyze codebase and generate/update ROADMAP.md")
@@ -732,6 +719,8 @@ program
       }
     );
   });
+
+program.addCommand(createSpriteCommand(logger, resolveCwd));
 
 async function main(): Promise<void> {
   setupInterruptHandler(logger);

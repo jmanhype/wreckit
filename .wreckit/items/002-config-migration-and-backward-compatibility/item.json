@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "002-config-migration-and-backward-compatibility",
+  "title": "Config migration and backward compatibility",
+  "section": "backend",
+  "state": "idea",
+  "overview": "Ensure existing configs without new `compute` or `limits` sections continue to work, defaulting to local backend behavior, and provide migration path for upgrades.\n\n**Motivation:** Prevent breaking changes for existing users when introducing new compute backend feature.\n\n**Success criteria:**\n- Old config without `compute` section defaults to local backend\n- Old config without `limits` section uses defaults\n- Adding `compute.backend: \"sprites\"` switches to sprites backend\n- No validation errors on legacy configs\n\n**Signals:** priority: high",
+  "branch": null,
+  "pr_url": null,
+  "pr_number": null,
+  "last_error": null,
+  "created_at": "2026-01-22T18:39:42.079Z",
+  "updated_at": "2026-01-22T18:39:42.079Z",
+  "motivation": "Prevent breaking changes for existing users when introducing new compute backend feature.",
+  "success_criteria": [
+    "Old config without `compute` section defaults to local backend",
+    "Old config without `limits` section uses defaults",
+    "Adding `compute.backend: \"sprites\"` switches to sprites backend",
+    "No validation errors on legacy configs"
+  ],
+  "priority_hint": "high"
+}
