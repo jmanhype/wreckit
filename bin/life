@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+# bin/life - The Heartbeat of the Cybernetic System
+# Usage: ./bin/life [--interval SECONDS]
+
+INTERVAL=${1:-300} # Default 5 minutes sleep
+LOG_FILE="life.log"
+
+echo "🟢 System Online. Initializing Life Cycle..." | tee -a $LOG_FILE
+
+while true; do
+    TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    echo "==================================================" | tee -a $LOG_FILE
+    echo "⏰ Cycle Start: $TIMESTAMP" | tee -a $LOG_FILE
+    
+    # 1. DREAM (Teleology)
+    echo "🧠 Phase 1: Dreaming (Consulting S4)..." | tee -a $LOG_FILE
+    # Using --verbose for granular operator visibility
+    ./dist/index.js dream --max-items 1 --verbose | tee -a $LOG_FILE
+    
+    # 2. ACT (Implementation)
+    # Check if there are pending items
+    PENDING_COUNT=$(./dist/index.js status --json | grep "status" | grep -c "pending")
+    
+    if [ "$PENDING_COUNT" -gt "0" ]; then
+        echo "💪 Phase 2: Acting (Implementing Strategy)..." | tee -a $LOG_FILE
+        # ENABLED AUTONOMY with VERBOSE LOGGING
+        ./dist/index.js next --verbose --sandbox | tee -a $LOG_FILE
+    else
+        echo "💤 Phase 2: No active tasks. Checking for ideas..." | tee -a $LOG_FILE
+        # Auto-Promote: Find first "idea" ID using text output (cols: ID STATE TITLE)
+        NEXT_IDEA=$(./dist/index.js status | grep "idea" | head -n 1 | awk '{print $1}')
+        
+        if [ -n "$NEXT_IDEA" ]; then
+            echo "🚀 Auto-Promoting Idea $NEXT_IDEA to TODO..." | tee -a $LOG_FILE
+            ./dist/index.js move "$NEXT_IDEA" todo | tee -a $LOG_FILE
+            # Immediately execute
+             echo "💪 Phase 2: Acting (Implementing Promoted Strategy)..." | tee -a $LOG_FILE
+            ./dist/index.js next --verbose --sandbox | tee -a $LOG_FILE
+        else
+            echo "EMPTY MIND: No ideas found. Dreaming harder next time." | tee -a $LOG_FILE
+        fi
+    fi
+
+    # 3. HEAL (Maintenance)
+    echo "❤️ Phase 3: Healing (Running Doctor)..." | tee -a $LOG_FILE
+    cd cybernetic-system && source .env && mix cyb.doctor >> ../$LOG_FILE 2>&1
+    cd ..
+
+    echo "✅ Cycle Complete." | tee -a $LOG_FILE
+    echo "sleeping for $INTERVAL seconds..."
+    sleep $INTERVAL
+done

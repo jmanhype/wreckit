@@ -1,0 +1,8 @@
+{
+  "title": "Implement Cybernetic Live Dashboard",
+  "overview": "Create a real-time web UI to visualize the autonomous system status. It should expose the Phoenix LiveDashboard and add a custom page to stream the 'life.log' and show the current 'Dream/Act/Heal' phase.",
+  "evidence": "User request for GUI. Existing Phoenix infrastructure.",
+  "source": "user",
+  "type": "feature",
+  "impact": "high"
+}

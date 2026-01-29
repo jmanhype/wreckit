@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "100-upgrade-cybernetic-dashboard-ui",
+  "title": "Upgrade Cybernetic Dashboard UI",
+  "section": "items",
+  "state": "idea",
+  "overview": "Upgrade the Cybernetic Command Center (HomeLive) to a production-grade, high-fidelity Sci-Fi HUD interface. Includes real-time charts, interactive terminal, responsive layout, and graphical system visualization.",
+  "created_at": "2026-01-29T00:30:00Z",
+  "updated_at": "2026-01-29T00:30:00Z",
+  "branch": "wreckit/100-upgrade-cybernetic-dashboard-ui",
+  "source": "user",
+  "type": "feature",
+  "impact": "high",
+  "pr_url": null,
+  "pr_number": null,
+  "last_error": null,
+  "priority_hint": "high",
+  "scope_in_scope": [
+    "Visual polish (CSS/styling)",
+    "Real-time charts (SVG/CSS)",
+    "Interactive terminal (scroll/pause)",
+    "Responsive layout",
+    "Graphical system visualization"
+  ]
+}

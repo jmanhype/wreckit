@@ -1,0 +1,77 @@
+# ==========================================
+# Stage 1: Build Cybernetic Kernel (Elixir)
+# ==========================================
+FROM elixir:1.18.3-otp-26-alpine AS kernel_builder
+
+RUN apk add --no-cache git gcc g++ make libc-dev openssl-dev ncurses-dev
+
+ENV MIX_ENV=prod
+WORKDIR /app/cybernetic-system
+
+RUN mix local.hex --force && mix local.rebar --force
+
+COPY cybernetic-system/mix.exs cybernetic-system/mix.lock ./
+COPY cybernetic-system/config config
+RUN mix deps.get --only prod && mix deps.compile
+
+COPY cybernetic-system/lib lib
+COPY cybernetic-system/priv priv
+RUN mix compile
+RUN mix release
+
+# ==========================================
+# Stage 2: Build Wreckit Mind (Node/Bun)
+# ==========================================
+FROM oven/bun:1.1 AS mind_builder
+
+WORKDIR /app/wreckit
+
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
+
+COPY tsconfig.json ./
+COPY src src
+RUN bun run build
+
+# ==========================================
+# Stage 3: The Spore (Runtime)
+# ==========================================
+FROM oven/bun:1.1-alpine
+
+RUN apk add --no-cache \
+    openssl \
+    ncurses-libs \
+    libstdc++ \
+    bash \
+    curl \
+    git
+
+WORKDIR /app
+
+# Install Cybernetic Kernel
+COPY --from=kernel_builder /app/cybernetic-system/_build/prod/rel/cybernetic ./cybernetic
+
+# Install Wreckit Mind
+COPY --from=mind_builder /app/wreckit/dist ./wreckit/dist
+COPY --from=mind_builder /app/wreckit/node_modules ./wreckit/node_modules
+COPY --from=mind_builder /app/wreckit/package.json ./wreckit/package.json
+
+# Copy Life Script
+COPY bin/life ./bin/life
+RUN chmod +x ./bin/life
+
+# Setup Environment
+ENV PATH="/app/wreckit/dist:${PATH}"
+ENV PORT=4000
+ENV RELEASE_COOKIE=spore_cookie
+ENV MIX_ENV=prod
+
+# Runtime User
+RUN addgroup -g 1000 spore && \
+    adduser -D -s /bin/bash -u 1000 -G spore spore && \
+    chown -R spore:spore /app
+
+USER spore
+
+# The Pulse
+CMD ["./bin/life"]

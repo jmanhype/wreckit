@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "099-implement-cybernetic-live-dashboard",
+  "title": "Implement Cybernetic Live Dashboard",
+  "section": "items",
+  "overview": "Create a real-time web UI to visualize the autonomous system status. It should expose the Phoenix LiveDashboard and add a custom page to stream the 'life.log' and show the current 'Dream/Act/Heal' phase.",
+  "state": "idea",
+  "created_at": "2026-01-28T22:50:00Z",
+  "updated_at": "2026-01-28T22:50:00Z",
+  "branch": "wreckit/099-implement-cybernetic-live-dashboard",
+  "pr_url": null,
+  "pr_number": null,
+  "last_error": null,
+  "source": "user",
+  "type": "feature",
+  "impact": "high"
+}
