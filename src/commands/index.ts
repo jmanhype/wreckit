@@ -1,5 +1,6 @@
 export { ideasCommand, readStdin, readFile, type IdeasOptions } from "./ideas";
 export { statusCommand, type StatusOptions } from "./status";
+export { listCommand, type ListOptions } from "./list";
 export {
   showCommand,
   loadItemDetails,
@@ -32,3 +33,11 @@ export {
   executeRoadmapCommand,
   type ExecuteRoadmapOptions,
 } from "./execute-roadmap";
+export {
+  computeSpriteStatusCommand,
+  computeSpriteResumeCommand,
+  computeSpriteDestroyCommand,
+  type ComputeSpriteStatusOptions,
+  type ComputeSpriteResumeOptions,
+  type ComputeSpriteDestroyOptions,
+} from "./computeSprite";

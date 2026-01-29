@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "106-dreamer-remove-or-fix-skipped-rlm-integration-test",
+  "title": "[DREAMER] Remove or fix skipped RLM integration test",
+  "section": "testing",
+  "state": "idea",
+  "overview": "A skipped test in rlm-integration.test.ts suggests that either: (1) the test needs API keys that aren't available in CI, (2) the test is outdated, or (3) there's no good pattern for integration tests that need external services. Skipped tests accumulate technical debt and mask potential failures.\n\n**Motivation:** Skipped tests are worse than no tests - they give a false sense of coverage while not actually validating anything. If the test is obsolete, it should be removed. If it's needed but can't run in CI, it should be documented or moved to a manual test suite. The current state suggests RLM integration isn't properly tested.\n\n**Success criteria:**\n- Either remove the skipped test or make it runnable\n- If runnable: add test credentials to CI or mock the API\n- If obsolete: delete the test file\n- Document how to run RLM integration tests locally\n- All tests in the suite actually run (no skips)\n- Integration tests are part of CI workflow\n\n**Technical constraints:**\n- May need to handle API key management for tests\n- CI environment may not have access to external APIs\n- Mocking may be complex for integration tests\n\n**In scope:**\n- src/agent/__tests__/rlm-integration.test.ts\n- Related test configuration\n- CI/CD test setup\n**Out of scope:**\n- Unit tests (they should not skip)\n- Other integration tests unless they have the same issue\n\n**Signals:** priority: low, urgency: Skipped tests indicate incomplete testing infrastructure but don't directly break production.",
+  "branch": null,
+  "pr_url": null,
+  "pr_number": null,
+  "last_error": null,
+  "created_at": "2026-01-29T03:16:19.350Z",
+  "updated_at": "2026-01-29T03:16:19.350Z",
+  "problem_statement": "A skipped test in rlm-integration.test.ts suggests that either: (1) the test needs API keys that aren't available in CI, (2) the test is outdated, or (3) there's no good pattern for integration tests that need external services. Skipped tests accumulate technical debt and mask potential failures.",
+  "motivation": "Skipped tests are worse than no tests - they give a false sense of coverage while not actually validating anything. If the test is obsolete, it should be removed. If it's needed but can't run in CI, it should be documented or moved to a manual test suite. The current state suggests RLM integration isn't properly tested.",
+  "success_criteria": [
+    "Either remove the skipped test or make it runnable",
+    "If runnable: add test credentials to CI or mock the API",
+    "If obsolete: delete the test file",
+    "Document how to run RLM integration tests locally",
+    "All tests in the suite actually run (no skips)",
+    "Integration tests are part of CI workflow"
+  ],
+  "technical_constraints": [
+    "May need to handle API key management for tests",
+    "CI environment may not have access to external APIs",
+    "Mocking may be complex for integration tests"
+  ],
+  "scope_in_scope": [
+    "src/agent/__tests__/rlm-integration.test.ts",
+    "Related test configuration",
+    "CI/CD test setup"
+  ],
+  "scope_out_of_scope": [
+    "Unit tests (they should not skip)",
+    "Other integration tests unless they have the same issue"
+  ],
+  "priority_hint": "low",
+  "urgency_hint": "Skipped tests indicate incomplete testing infrastructure but don't directly break production."
+}

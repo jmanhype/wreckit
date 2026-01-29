@@ -33,6 +33,7 @@ export class SpritesBackend implements ComputeBackend {
   private activeSprite: Sprite | null = null;
   private currentItemId: string | null = null;
   private succeeded = false;
+  private iterationCount = 0;
 
   constructor(
     private root: string,
@@ -228,6 +229,30 @@ export class SpritesBackend implements ComputeBackend {
     itemId: string,
     options: IterationOptions
   ): AsyncIterable<LogEvent> {
+    // Reset iteration counter if switching items
+    if (this.currentItemId !== itemId) {
+      this.iterationCount = 0;
+      this.currentItemId = itemId;
+    }
+
+    // Increment iteration counter
+    this.iterationCount++;
+
+    // Check iteration limit
+    if (this.iterationCount > this.limits.max_iterations) {
+      const errorMsg = `Iteration limit exceeded: ${this.iterationCount} > ${this.limits.max_iterations}`;
+      this.logger.error(errorMsg);
+
+      yield {
+        type: "error",
+        message: errorMsg,
+        timestamp: new Date().toISOString(),
+      };
+
+      // Stop iteration by not calling ensureSprite()
+      return;
+    }
+
     const sprite = await this.ensureSprite(itemId);
     const repoName = this.repoSlug.split("/").pop() || "repo";
     const repoPath = `${this.config.workdir}/repos/${repoName}`;
@@ -392,5 +417,6 @@ export class SpritesBackend implements ComputeBackend {
     this.activeSprite = null;
     this.currentItemId = null;
     this.succeeded = false;
+    this.iterationCount = 0;
   }
 }

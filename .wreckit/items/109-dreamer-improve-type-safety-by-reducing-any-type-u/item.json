@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "109-dreamer-improve-type-safety-by-reducing-any-type-u",
+  "title": "[DREAMER] Improve type safety by reducing 'any' type usage in error handling",
+  "section": "types",
+  "state": "idea",
+  "overview": "Overuse of `any` type in error handling reduces TypeScript's effectiveness at catching type-related bugs. It makes it harder to reason about what errors can occur and how they should be handled. The codebase already has a robust error class hierarchy that isn't being fully utilized.\n\n**Motivation:** Better type safety in error handling leads to fewer runtime errors and improved developer experience. When error types are properly typed, IDEs can provide better autocomplete, and refactoring becomes safer. The existing `WreckitError` class hierarchy is well-designed but underutilized.\n\n**Success criteria:**\n- Reduce `any` type usage in catch blocks by at least 50%\n- Prefer `unknown` for generic errors, then narrow with type guards\n- Use existing `WreckitError` subclasses where appropriate\n- Add type guards for common error patterns (e.g., error code checking)\n- TypeScript strict mode compliance improved\n\n**Technical constraints:**\n- Must not change runtime behavior\n- Some `any` uses may be necessary for external library compatibility - these should have explicit comments\n- Changes should be gradual to avoid massive diffs\n\n**In scope:**\n- src/git/scope.ts - error type improvements\n- src/agent/rlm-tools.ts - error handling\n- src/domain/ideas-interview.ts - error type narrowing\n- src/agent/remote-tools.ts - error type safety\n- src/config.ts - migrateAgentConfig parameter typing\n**Out of scope:**\n- Test files (any is more acceptable there)\n- Third-party library integrations where types are unavailable\n\n**Signals:** priority: medium, urgency: Type safety and code quality",
+  "branch": null,
+  "pr_url": null,
+  "pr_number": null,
+  "last_error": null,
+  "created_at": "2026-01-29T03:20:52.749Z",
+  "updated_at": "2026-01-29T03:20:52.749Z",
+  "problem_statement": "Overuse of `any` type in error handling reduces TypeScript's effectiveness at catching type-related bugs. It makes it harder to reason about what errors can occur and how they should be handled. The codebase already has a robust error class hierarchy that isn't being fully utilized.",
+  "motivation": "Better type safety in error handling leads to fewer runtime errors and improved developer experience. When error types are properly typed, IDEs can provide better autocomplete, and refactoring becomes safer. The existing `WreckitError` class hierarchy is well-designed but underutilized.",
+  "success_criteria": [
+    "Reduce `any` type usage in catch blocks by at least 50%",
+    "Prefer `unknown` for generic errors, then narrow with type guards",
+    "Use existing `WreckitError` subclasses where appropriate",
+    "Add type guards for common error patterns (e.g., error code checking)",
+    "TypeScript strict mode compliance improved"
+  ],
+  "technical_constraints": [
+    "Must not change runtime behavior",
+    "Some `any` uses may be necessary for external library compatibility - these should have explicit comments",
+    "Changes should be gradual to avoid massive diffs"
+  ],
+  "scope_in_scope": [
+    "src/git/scope.ts - error type improvements",
+    "src/agent/rlm-tools.ts - error handling",
+    "src/domain/ideas-interview.ts - error type narrowing",
+    "src/agent/remote-tools.ts - error type safety",
+    "src/config.ts - migrateAgentConfig parameter typing"
+  ],
+  "scope_out_of_scope": [
+    "Test files (any is more acceptable there)",
+    "Third-party library integrations where types are unavailable"
+  ],
+  "priority_hint": "medium",
+  "urgency_hint": "Type safety and code quality"
+}

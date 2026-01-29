@@ -19,23 +19,26 @@ while true; do
     ./dist/index.js dream --max-items 1 --verbose | tee -a $LOG_FILE
     
     # 2. ACT (Implementation)
-    # Check if there are pending items
-    PENDING_COUNT=$(./dist/index.js status --json | grep "status" | grep -c "pending")
+    # Check if there are active items (planned, implementing, critique, researching)
+    # We grep all item.json files for these states
+    ACTIVE_COUNT=$(grep -r "\"state\":" .wreckit/items | grep -vE "done|idea" | wc -l)
     
-    if [ "$PENDING_COUNT" -gt "0" ]; then
-        echo "💪 Phase 2: Acting (Implementing Strategy)..." | tee -a $LOG_FILE
+    if [ "$ACTIVE_COUNT" -gt "0" ]; then
+        echo "💪 Phase 2: Acting ($ACTIVE_COUNT tasks active)..." | tee -a $LOG_FILE
         # ENABLED AUTONOMY with VERBOSE LOGGING
         ./dist/index.js next --verbose --sandbox | tee -a $LOG_FILE
     else
         echo "💤 Phase 2: No active tasks. Checking for ideas..." | tee -a $LOG_FILE
-        # Auto-Promote: Find first "idea" ID using text output (cols: ID STATE TITLE)
-        NEXT_IDEA=$(./dist/index.js status | grep "idea" | head -n 1 | awk '{print $1}')
+        # Auto-Promote: Find first directory containing an "idea" item.json
+        # We look for the literal string "state": "idea"
+        NEXT_ITEM_JSON=$(grep -rl "\"state\": \"idea\"" .wreckit/items | head -n 1)
         
-        if [ -n "$NEXT_IDEA" ]; then
-            echo "🚀 Auto-Promoting Idea $NEXT_IDEA to TODO..." | tee -a $LOG_FILE
-            ./dist/index.js move "$NEXT_IDEA" todo | tee -a $LOG_FILE
-            # Immediately execute
-             echo "💪 Phase 2: Acting (Implementing Promoted Strategy)..." | tee -a $LOG_FILE
+        if [ -n "$NEXT_ITEM_JSON" ]; then
+            ITEM_ID=$(basename $(dirname "$NEXT_ITEM_JSON"))
+            echo "🚀 Auto-Promoting Idea $ITEM_ID to planned..." | tee -a $LOG_FILE
+            # Manual state patch
+            sed -i '' 's/"state": "idea"/"state": "planned"/' "$NEXT_ITEM_JSON"
+            echo "💪 Phase 2: Acting (Implementing Promoted Strategy)..." | tee -a $LOG_FILE
             ./dist/index.js next --verbose --sandbox | tee -a $LOG_FILE
         else
             echo "EMPTY MIND: No ideas found. Dreaming harder next time." | tee -a $LOG_FILE

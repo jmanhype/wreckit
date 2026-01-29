@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "111-dreamer-remove-backward-compatibility-for-overview",
+  "title": "[DREAMER] Remove backward compatibility for 'overview' field in Idea schema",
+  "section": "domain",
+  "state": "idea",
+  "overview": "Deprecated fields that remain in the codebase create confusion about which fields to use. The `overview` field duplicates the `description` field, and keeping both around indefinitely adds maintenance burden without clear benefit.\n\n**Motivation:** Simplifying the schema by removing deprecated fields reduces cognitive load and potential bugs. It also makes the API clearer for new contributors. A sufficient migration period has likely passed.\n\n**Success criteria:**\n- Remove `overview` field from ParsedIdea interface\n- Remove code that populates `overview` field\n- Update any code that reads `overview` to use `description` instead\n- Add migration note if this is a breaking change for external consumers\n- Tests pass without the field\n\n**Technical constraints:**\n- Must ensure no external consumers depend on this field\n- May need a version bump if this is part of public API\n- Migration guide if this affects stored JSON data\n\n**In scope:**\n- src/domain/ideas.ts - ParsedIdea interface\n- Code that sets or reads the overview field\n**Out of scope:**\n- Stored item.json files that may contain overview field (separate migration)\n\n**Signals:** priority: low, urgency: Schema cleanup",
+  "branch": null,
+  "pr_url": null,
+  "pr_number": null,
+  "last_error": null,
+  "created_at": "2026-01-29T03:20:52.750Z",
+  "updated_at": "2026-01-29T03:20:52.750Z",
+  "problem_statement": "Deprecated fields that remain in the codebase create confusion about which fields to use. The `overview` field duplicates the `description` field, and keeping both around indefinitely adds maintenance burden without clear benefit.",
+  "motivation": "Simplifying the schema by removing deprecated fields reduces cognitive load and potential bugs. It also makes the API clearer for new contributors. A sufficient migration period has likely passed.",
+  "success_criteria": [
+    "Remove `overview` field from ParsedIdea interface",
+    "Remove code that populates `overview` field",
+    "Update any code that reads `overview` to use `description` instead",
+    "Add migration note if this is a breaking change for external consumers",
+    "Tests pass without the field"
+  ],
+  "technical_constraints": [
+    "Must ensure no external consumers depend on this field",
+    "May need a version bump if this is part of public API",
+    "Migration guide if this affects stored JSON data"
+  ],
+  "scope_in_scope": [
+    "src/domain/ideas.ts - ParsedIdea interface",
+    "Code that sets or reads the overview field"
+  ],
+  "scope_out_of_scope": [
+    "Stored item.json files that may contain overview field (separate migration)"
+  ],
+  "priority_hint": "low",
+  "urgency_hint": "Schema cleanup"
+}
