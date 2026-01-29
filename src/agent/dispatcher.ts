@@ -1,5 +1,14 @@
 import type { Logger } from "../logging";
-import type { AgentConfigUnion, ProcessAgentConfig, ClaudeSdkAgentConfig, AmpSdkAgentConfig, CodexSdkAgentConfig, OpenCodeSdkAgentConfig, RlmSdkAgentConfig } from "../schemas";
+import type {
+  AgentConfigUnion,
+  ProcessAgentConfig,
+  ClaudeSdkAgentConfig,
+  AmpSdkAgentConfig,
+  CodexSdkAgentConfig,
+  OpenCodeSdkAgentConfig,
+  RlmSdkAgentConfig,
+  SpriteAgentConfig,
+} from "../schemas";
 import type { AgentEvent } from "../tui/agentEvents";
 import { runProcessAgent } from "./process-runner.js";
 import type { AgentResult } from "./result";
@@ -18,7 +27,7 @@ function exhaustiveCheck(x: never): never {
  */
 export async function dispatchAgent(
   config: AgentConfigUnion,
-  options: CommonRunAgentOptions
+  options: CommonRunAgentOptions,
 ): Promise<AgentResult> {
   const { logger, dryRun = false, mockAgent = false } = options;
 
@@ -161,6 +170,21 @@ export async function dispatchAgent(
         onAgentEvent: options.onAgentEvent,
         mcpServers: options.mcpServers,
         allowedTools: options.allowedTools,
+        timeoutSeconds: options.timeoutSeconds,
+      });
+    }
+
+    case "sprite": {
+      const { runSpriteAgent } = await import("./sprite-runner.js");
+      return runSpriteAgent(config as SpriteAgentConfig, {
+        config: config as SpriteAgentConfig,
+        cwd: options.cwd,
+        prompt: options.prompt,
+        logger: options.logger,
+        dryRun: options.dryRun,
+        mockAgent: options.mockAgent,
+        onStdoutChunk: options.onStdoutChunk,
+        onStderrChunk: options.onStderrChunk,
         timeoutSeconds: options.timeoutSeconds,
       });
     }

@@ -12,6 +12,7 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import * as os from "node:os";
 import type { Logger } from "../logging";
+import { findRepoRoot, getConfigPath, getConfigLocalPath } from "../fs/paths";
 
 const ALLOWED_PREFIXES = [
   "ANTHROPIC_",
@@ -19,13 +20,16 @@ const ALLOWED_PREFIXES = [
   "API_TIMEOUT",
   "OPENAI_",
   "GOOGLE_",
-  "ZAI_"
+  "ZAI_",
+  "SPRITES_",
 ];
 
 /**
  * Read env from ~/.claude/settings.json
  */
-async function readClaudeUserEnv(logger: Logger): Promise<Record<string, string>> {
+async function readClaudeUserEnv(
+  logger: Logger,
+): Promise<Record<string, string>> {
   const settingsPath = path.join(os.homedir(), ".claude", "settings.json");
   try {
     const raw = await fs.readFile(settingsPath, "utf8");
@@ -36,11 +40,12 @@ async function readClaudeUserEnv(logger: Logger): Promise<Record<string, string>
     // Only import allowed prefixes for safety
     return Object.fromEntries(
       Object.entries(env)
-        .filter(([k, v]) =>
-          (typeof v === "string" || typeof v === "number") &&
-          ALLOWED_PREFIXES.some(p => k.startsWith(p))
+        .filter(
+          ([k, v]) =>
+            (typeof v === "string" || typeof v === "number") &&
+            ALLOWED_PREFIXES.some((p) => k.startsWith(p)),
         )
-        .map(([k, v]) => [k, String(v)])
+        .map(([k, v]) => [k, String(v)]),
     );
   } catch (e: any) {
     if (e?.code !== "ENOENT") {
@@ -53,7 +58,10 @@ async function readClaudeUserEnv(logger: Logger): Promise<Record<string, string>
 /**
  * Read env from a wreckit config file
  */
-async function readWreckitEnv(configPath: string, logger: Logger): Promise<Record<string, string>> {
+async function readWreckitEnv(
+  configPath: string,
+  logger: Logger,
+): Promise<Record<string, string>> {
   try {
     const raw = await fs.readFile(configPath, "utf8");
     const parsed = JSON.parse(raw);
@@ -63,7 +71,7 @@ async function readWreckitEnv(configPath: string, logger: Logger): Promise<Recor
     return Object.fromEntries(
       Object.entries(env)
         .filter(([_, v]) => typeof v === "string" || typeof v === "number")
-        .map(([k, v]) => [k, String(v)])
+        .map(([k, v]) => [k, String(v)]),
     );
   } catch (e: any) {
     if (e?.code !== "ENOENT") {
@@ -83,17 +91,28 @@ export interface BuildSdkEnvOptions {
  *
  * Merges from multiple sources with clear precedence.
  */
-export async function buildSdkEnv(options: BuildSdkEnvOptions): Promise<Record<string, string>> {
+export async function buildSdkEnv(
+  options: BuildSdkEnvOptions,
+): Promise<Record<string, string>> {
   const { cwd, logger } = options;
+
+  let root = cwd;
+  try {
+    root = findRepoRoot(cwd);
+  } catch (e) {
+    // If not in a wreckit repo, use cwd
+  }
 
   // Load from all sources
   const claudeSettingsEnv = await readClaudeUserEnv(logger);
-  const wreckitConfigEnv = await readWreckitEnv(path.join(cwd, ".wreckit", "config.json"), logger);
-  const wreckitLocalEnv = await readWreckitEnv(path.join(cwd, ".wreckit", "config.local.json"), logger);
+  const wreckitConfigEnv = await readWreckitEnv(getConfigPath(root), logger);
+  const wreckitLocalEnv = await readWreckitEnv(getConfigLocalPath(root), logger);
 
   // Process env (filter undefined)
   const processEnv = Object.fromEntries(
-    Object.entries(process.env).filter((e): e is [string, string] => e[1] !== undefined)
+    Object.entries(process.env).filter(
+      (e): e is [string, string] => e[1] !== undefined,
+    ),
   );
 
   // Merge with precedence: local > config > process > claude settings
@@ -108,7 +127,9 @@ export async function buildSdkEnv(options: BuildSdkEnvOptions): Promise<Record<s
   if (sdkEnv.ANTHROPIC_BASE_URL && sdkEnv.ANTHROPIC_AUTH_TOKEN) {
     sdkEnv.ANTHROPIC_API_KEY = "";
     logger.debug(`Using custom endpoint: ${sdkEnv.ANTHROPIC_BASE_URL}`);
-    logger.debug(`Auth token present: ${sdkEnv.ANTHROPIC_AUTH_TOKEN ? "yes" : "no"}`);
+    logger.debug(
+      `Auth token present: ${sdkEnv.ANTHROPIC_AUTH_TOKEN ? "yes" : "no"}`,
+    );
   }
 
   return sdkEnv;
@@ -121,7 +142,9 @@ export interface BuildAxAIEnvOptions extends BuildSdkEnvOptions {
 /**
  * Build environment specifically for AxAI providers.
  */
-export async function buildAxAIEnv(options: BuildAxAIEnvOptions): Promise<Record<string, string>> {
+export async function buildAxAIEnv(
+  options: BuildAxAIEnvOptions,
+): Promise<Record<string, string>> {
   const { provider, logger } = options;
   const baseEnv = await buildSdkEnv(options);
   const axaiEnv: Record<string, string> = { ...baseEnv };
@@ -140,7 +163,7 @@ export async function buildAxAIEnv(options: BuildAxAIEnvOptions): Promise<Record
     } else if (axaiEnv.ANTHROPIC_AUTH_TOKEN) {
       axaiEnv.ANTHROPIC_API_KEY = axaiEnv.ANTHROPIC_AUTH_TOKEN;
     }
-    
+
     // 2. Set default base URL for Z.AI if not already set (via ANTHROPIC_BASE_URL)
     if (!axaiEnv.ANTHROPIC_BASE_URL) {
       axaiEnv.ANTHROPIC_BASE_URL = "https://api.z.ai/api/anthropic";
@@ -159,4 +182,35 @@ export async function buildAxAIEnv(options: BuildAxAIEnvOptions): Promise<Record
   }
 
   return axaiEnv;
+}
+
+export interface BuildSpriteEnvOptions extends BuildSdkEnvOptions {
+  token?: string;
+}
+
+/**
+ * Build environment specifically for Sprite CLI operations.
+ * Handles Sprites.dev authentication token.
+ */
+export async function buildSpriteEnv(
+  options: BuildSpriteEnvOptions,
+): Promise<Record<string, string>> {
+  const { token, logger } = options;
+  const baseEnv = await buildSdkEnv(options);
+  const spriteEnv: Record<string, string> = { ...baseEnv };
+
+  // Add token if provided (from config or explicit parameter)
+  if (token) {
+    spriteEnv.SPRITES_TOKEN = token;
+    logger.debug("Sprites token loaded from config");
+  } else if (baseEnv.SPRITES_TOKEN) {
+    logger.debug("Sprites token loaded from environment");
+  }
+
+  // Redact token from logs for security
+  if (spriteEnv.SPRITES_TOKEN) {
+    logger.debug("SPRITES_TOKEN: present (redacted)");
+  }
+
+  return spriteEnv;
 }
