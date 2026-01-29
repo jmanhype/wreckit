@@ -119,7 +119,10 @@ export async function runPhaseCritique(
   };
 
   const prompt = renderPrompt(template, variables);
-  const agentConfig = getAgentConfigUnion(config);
+  const baseAgentConfig = getAgentConfigUnion(config);
+  const agentConfig = options.sandbox 
+    ? { ...baseAgentConfig, kind: "rlm" as const, sandbox: true } 
+    : baseAgentConfig;
 
   const result = await runAgentUnion({
     itemId: itemId,

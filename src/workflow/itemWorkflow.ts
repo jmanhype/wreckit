@@ -102,6 +102,8 @@ export interface WorkflowOptions {
   onPhaseChanged?: (phase: WorkflowState | null) => void;
   /** Disable automatic self-healing for this workflow (Item 038) */
   noHealing?: boolean;
+  /** Run in isolated Sprite VM (Item 073) */
+  sandbox?: boolean;
 }
 
 export interface PhaseResult {
@@ -321,7 +323,11 @@ export async function runPhaseResearch(
   ); // Add phase
 
   const itemDir = getItemDir(root, item.id);
-  const agentConfig = getAgentConfigUnion(config);
+  const baseAgentConfig = getAgentConfigUnion(config);
+  // Apply sandbox override if specified - force RLM kind as it supports sandbox
+  const agentConfig = options.sandbox 
+    ? { ...baseAgentConfig, kind: "rlm" as const, sandbox: true } 
+    : baseAgentConfig;
 
   // Load skills for research phase (Item 033)
   const skillResult = loadSkillsForPhase("research", config.skills);
@@ -509,7 +515,10 @@ export async function runPhasePlan(
   const baseVariables = await buildPromptVariables(root, item, config, "plan"); // Add phase
 
   const itemDir = getItemDir(root, item.id);
-  const agentConfig = getAgentConfigUnion(config);
+  const baseAgentConfig = getAgentConfigUnion(config);
+  const agentConfig = options.sandbox 
+    ? { ...baseAgentConfig, kind: "rlm" as const, sandbox: true } 
+    : baseAgentConfig;
 
   // Capture git status before running agent for design-only enforcement
   const beforeStatus: GitFileChange[] =
@@ -823,7 +832,11 @@ export async function runPhaseImplement(
     // Load skills for implement phase (Item 033)
     const skillResult = loadSkillsForPhase("implement", config.skills);
 
-    const agentConfig = getAgentConfigUnion(config);
+    const baseAgentConfig = getAgentConfigUnion(config);
+    const agentConfig = options.sandbox 
+      ? { ...baseAgentConfig, kind: "rlm" as const, sandbox: true } 
+      : baseAgentConfig;
+
     const result = await runAgentUnion({
       itemId: itemId,
       config: agentConfig,
@@ -1382,7 +1395,11 @@ export async function runPhasePr(
       // Load skills for PR phase (Item 033)
       const skillResult = loadSkillsForPhase("pr", config.skills);
 
-      const agentConfig = getAgentConfigUnion(config);
+      const baseAgentConfig = getAgentConfigUnion(config);
+      const agentConfig = options.sandbox 
+        ? { ...baseAgentConfig, kind: "rlm" as const, sandbox: true } 
+        : baseAgentConfig;
+
       const result = await runAgentUnion({
         itemId: itemId,
         config: agentConfig,
