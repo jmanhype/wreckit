@@ -31,7 +31,9 @@ export async function strategyCommand(
   }
 
   if (roadmapExists && !options.force) {
-    logger.info("ROADMAP.md already exists (use --force to overwrite). Skipping.");
+    logger.info(
+      "ROADMAP.md already exists (use --force to overwrite). Skipping.",
+    );
     return;
   }
 
@@ -62,18 +64,18 @@ export async function strategyCommand(
     const itemsDir = path.join(root, ".wreckit", "items");
     const itemDirs = await fs.readdir(itemsDir);
     for (const id of itemDirs) {
-        if (id.startsWith(".")) continue;
-        try {
-            const itemPath = path.join(itemsDir, id, "item.json");
-            const itemContent = await fs.readFile(itemPath, "utf-8");
-            const item = JSON.parse(itemContent);
-            if (item.state !== "done") {
-                items += `Item ${item.id} (${item.state}): ${item.title}\n`;
-            }
-        } catch (err) {
-            const errorMsg = err instanceof Error ? err.message : String(err);
-            logger.debug(`Skipping item ${id}: ${errorMsg}`);
+      if (id.startsWith(".")) continue;
+      try {
+        const itemPath = path.join(itemsDir, id, "item.json");
+        const itemContent = await fs.readFile(itemPath, "utf-8");
+        const item = JSON.parse(itemContent);
+        if (item.state !== "done") {
+          items += `Item ${item.id} (${item.state}): ${item.title}\n`;
         }
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        logger.debug(`Skipping item ${id}: ${errorMsg}`);
+      }
     }
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : String(err);

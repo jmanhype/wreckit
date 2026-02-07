@@ -7,11 +7,17 @@ const mockWriteFile = mock(() => Promise.resolve());
 const mockMkdir = mock(() => Promise.resolve());
 const mockAccess = mock(() => Promise.resolve());
 const mockLoadConfig = mock(() => Promise.resolve({}));
-const mockRunAgentUnion = mock(() => Promise.resolve({ success: true, output: "" }));
+const mockRunAgentUnion = mock(() =>
+  Promise.resolve({ success: true, output: "" }),
+);
 const mockGetAgentConfigUnion = mock(() => ({}));
 const mockLoadPromptTemplate = mock(() => Promise.resolve(""));
-const mockCreateOrUpdatePr = mock(() => Promise.resolve({ url: "", number: 1, created: true }));
-const mockEnsureBranch = mock(() => Promise.resolve({ branchName: "", created: true }));
+const mockCreateOrUpdatePr = mock(() =>
+  Promise.resolve({ url: "", number: 1, created: true }),
+);
+const mockEnsureBranch = mock(() =>
+  Promise.resolve({ branchName: "", created: true }),
+);
 const mockCommitAll = mock(() => Promise.resolve());
 const mockPushBranch = mock(() => Promise.resolve());
 
@@ -73,10 +79,16 @@ describe("geneticistCommand", () => {
 
   // Use recent timestamps within the 48-hour window
   const now = new Date();
-  const recentTimestamp1 = new Date(now.getTime() - 1 * 60 * 60 * 1000).toISOString(); // 1 hour ago
-  const recentTimestamp2 = new Date(now.getTime() - 2 * 60 * 60 * 1000).toISOString(); // 2 hours ago
-  const recentTimestamp3 = new Date(now.getTime() - 3 * 60 * 60 * 1000).toISOString(); // 3 hours ago
-  
+  const recentTimestamp1 = new Date(
+    now.getTime() - 1 * 60 * 60 * 1000,
+  ).toISOString(); // 1 hour ago
+  const recentTimestamp2 = new Date(
+    now.getTime() - 2 * 60 * 60 * 1000,
+  ).toISOString(); // 2 hours ago
+  const recentTimestamp3 = new Date(
+    now.getTime() - 3 * 60 * 60 * 1000,
+  ).toISOString(); // 3 hours ago
+
   const mockHealingLog = `{"timestamp":"${recentTimestamp1}","initialError":{"errorType":"git_lock","detectedPattern":"index.lock exists"},"attempts":[],"finalOutcome":"success"}
 {"timestamp":"${recentTimestamp2}","initialError":{"errorType":"git_lock","detectedPattern":"index.lock exists"},"attempts":[],"finalOutcome":"success"}
 {"timestamp":"${recentTimestamp3}","initialError":{"errorType":"git_lock","detectedPattern":"index.lock exists"},"attempts":[],"finalOutcome":"success"}`;
@@ -109,8 +121,15 @@ describe("geneticistCommand", () => {
       success: true,
       output: "# Plan {{id}} {{title}} (Optimized for git lock)",
     });
-    mockEnsureBranch.mockResolvedValue({ branchName: "wreckit/geneticist-test", created: true });
-    mockCreateOrUpdatePr.mockResolvedValue({ url: "https://github.com/pr/1", number: 1, created: true });
+    mockEnsureBranch.mockResolvedValue({
+      branchName: "wreckit/geneticist-test",
+      created: true,
+    });
+    mockCreateOrUpdatePr.mockResolvedValue({
+      url: "https://github.com/pr/1",
+      number: 1,
+      created: true,
+    });
     mockWriteFile.mockResolvedValue(undefined);
     mockMkdir.mockResolvedValue(undefined);
     mockCommitAll.mockResolvedValue(undefined);

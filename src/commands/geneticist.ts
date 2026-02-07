@@ -452,7 +452,7 @@ ${patternsList}
 
 ### Changes Made
 
-${optimization.validationPassed ? "✅ All validations passed" : "⚠️ Validation warnings:\n" + optimization.validationErrors.map(e => `- ${e}`).join("\n")}
+${optimization.validationPassed ? "✅ All validations passed" : "⚠️ Validation warnings:\n" + optimization.validationErrors.map((e) => `- ${e}`).join("\n")}
 
 ### Review Checklist
 
@@ -552,7 +552,10 @@ export async function geneticistCommand(
 
   // Process each prompt that needs optimization
   for (const [promptName, patterns] of groupedPatterns.entries()) {
-    const totalOccurrences = patterns.reduce((sum, p) => sum + p.occurrences, 0);
+    const totalOccurrences = patterns.reduce(
+      (sum, p) => sum + p.occurrences,
+      0,
+    );
     logger.info(
       `\n📝 Optimizing ${promptName}.md (${patterns.length} patterns, ${totalOccurrences} total occurrences)`,
     );

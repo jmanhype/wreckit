@@ -745,7 +745,9 @@ function validateSingleStory(
 
   // Check story ID format
   if (options.enforceStoryIdFormat && !isValidStoryId(story.id)) {
-    errors.push(`Story ID "${story.id}" does not match format US-### or US-{item}-{seq}`);
+    errors.push(
+      `Story ID "${story.id}" does not match format US-### or US-{item}-{seq}`,
+    );
   }
 
   // Check for non-empty title

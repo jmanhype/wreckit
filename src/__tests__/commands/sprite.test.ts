@@ -1,11 +1,4 @@
-import {
-  describe,
-  expect,
-  it,
-  beforeEach,
-  afterEach,
-  mock,
-} from "bun:test";
+import { describe, expect, it, beforeEach, afterEach, mock } from "bun:test";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import * as os from "node:os";
@@ -56,7 +49,9 @@ function createMockLogger(): Logger & { messages: string[] } {
 }
 
 async function setupTempGitRepo(): Promise<string> {
-  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "wreckit-sprite-test-"));
+  const tempDir = await fs.mkdtemp(
+    path.join(os.tmpdir(), "wreckit-sprite-test-"),
+  );
   await fs.mkdir(path.join(tempDir, ".git"), { recursive: true });
   return tempDir;
 }
@@ -123,7 +118,9 @@ describe("spriteStartCommand", () => {
       expect.objectContaining({ defaultMemory: "512MiB", defaultCPUs: "1" }),
       mockLogger,
     );
-    expect(mockLogger.messages.some((m) => m.includes("test-sprite"))).toBe(true);
+    expect(mockLogger.messages.some((m) => m.includes("test-sprite"))).toBe(
+      true,
+    );
   });
 
   it("starts a Sprite with custom memory and CPUs", async () => {
@@ -187,14 +184,19 @@ describe("spriteStartCommand", () => {
     process.exit = exitSpy as any;
 
     try {
-      await spriteStartCommand({ name: "test-sprite", cwd: tempDir }, mockLogger);
+      await spriteStartCommand(
+        { name: "test-sprite", cwd: tempDir },
+        mockLogger,
+      );
     } catch {}
 
     console.error = originalError;
     process.exit = originalExit;
 
     const errorCalls = consoleErrorSpy.mock.calls.map((c) => String(c[0]));
-    expect(errorCalls.some((c) => c.includes("not found") || c.includes("Wisp"))).toBe(true);
+    expect(
+      errorCalls.some((c) => c.includes("not found") || c.includes("Wisp")),
+    ).toBe(true);
   });
 });
 
@@ -314,7 +316,10 @@ describe("spriteKillCommand", () => {
     const originalLog = console.log;
     console.log = consoleSpy;
 
-    await spriteKillCommand({ name: "test-sprite", cwd: tempDir, json: true }, mockLogger);
+    await spriteKillCommand(
+      { name: "test-sprite", cwd: tempDir, json: true },
+      mockLogger,
+    );
 
     console.log = originalLog;
 
@@ -348,7 +353,10 @@ describe("spriteAttachCommand", () => {
       exitCode: 0,
     });
 
-    await spriteAttachCommand({ name: "test-sprite", cwd: tempDir }, mockLogger);
+    await spriteAttachCommand(
+      { name: "test-sprite", cwd: tempDir },
+      mockLogger,
+    );
 
     expect(mockAttachSprite).toHaveBeenCalled();
   });
@@ -368,7 +376,10 @@ describe("spriteAttachCommand", () => {
     const originalLog = console.log;
     console.log = consoleSpy;
 
-    await spriteAttachCommand({ name: "test-sprite", cwd: tempDir, json: true }, mockLogger);
+    await spriteAttachCommand(
+      { name: "test-sprite", cwd: tempDir, json: true },
+      mockLogger,
+    );
 
     console.log = originalLog;
 
@@ -458,7 +469,12 @@ describe("spriteExecCommand", () => {
     console.log = consoleSpy;
 
     await spriteExecCommand(
-      { name: "test-sprite", command: ["echo", "hello"], cwd: tempDir, json: true },
+      {
+        name: "test-sprite",
+        command: ["echo", "hello"],
+        cwd: tempDir,
+        json: true,
+      },
       mockLogger,
     );
 
@@ -492,7 +508,12 @@ describe("spriteExecCommand", () => {
 
     try {
       await spriteExecCommand(
-        { name: "test-sprite", command: ["failing-command"], cwd: tempDir, json: true },
+        {
+          name: "test-sprite",
+          command: ["failing-command"],
+          cwd: tempDir,
+          json: true,
+        },
         mockLogger,
       );
     } catch {}
@@ -502,7 +523,9 @@ describe("spriteExecCommand", () => {
     process.exit = originalExit;
 
     // JSON output may go to either log or error
-    expect(consoleSpy.mock.calls.length + consoleErrorSpy.mock.calls.length).toBeGreaterThan(0);
+    expect(
+      consoleSpy.mock.calls.length + consoleErrorSpy.mock.calls.length,
+    ).toBeGreaterThan(0);
   });
 
   it("handles Sprite binary not found error", async () => {

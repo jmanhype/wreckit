@@ -114,7 +114,10 @@ function findMissingDependencies(
   return missing;
 }
 
-async function diagnoseDependencies(root: string, logger: Logger): Promise<Diagnostic[]> {
+async function diagnoseDependencies(
+  root: string,
+  logger: Logger,
+): Promise<Diagnostic[]> {
   const diagnostics: Diagnostic[] = [];
   const itemsDir = getItemsDir(root);
 
@@ -383,7 +386,7 @@ async function diagnoseItem(
 
   if (hasPrd) {
     try {
-      const prdData = await readJson(prdPath);
+      const prdData = await readJson(prdPath) as Record<string, any>;
 
       // Check for missing required fields (fixable issues)
       // We check these before schema validation to provide specific, fixable diagnostics
@@ -413,7 +416,8 @@ async function diagnoseItem(
       // Check for out-of-range priorities (fixable issue)
       if (prdData.user_stories && Array.isArray(prdData.user_stories)) {
         const invalidPriorities = prdData.user_stories.filter(
-          (s: { priority?: number }) => s.priority !== undefined && (s.priority < 1 || s.priority > 4)
+          (s: { priority?: number }) =>
+            s.priority !== undefined && (s.priority < 1 || s.priority > 4),
         );
         if (invalidPriorities.length > 0) {
           diagnostics.push({
@@ -795,7 +799,9 @@ async function diagnoseOrphanedVMs(
     }
 
     // Parse JSON output
-    const sprites = parseWispJson(result.stdout, logger) as WispSpriteInfo[] | null;
+    const sprites = parseWispJson(result.stdout, logger) as
+      | WispSpriteInfo[]
+      | null;
 
     if (!sprites || !Array.isArray(sprites)) {
       diagnostics.push({
@@ -810,7 +816,7 @@ async function diagnoseOrphanedVMs(
 
     // Filter for Wreckit ephemeral VMs: /^wreckit-sandbox-\d{3}-/
     const wreckitVMs = sprites.filter((vm) =>
-      /^wreckit-sandbox-\d{3}-/.test(vm.name)
+      /^wreckit-sandbox-\d{3}-/.test(vm.name),
     );
 
     if (wreckitVMs.length === 0) {
@@ -880,7 +886,10 @@ async function diagnoseOrphanedVMs(
   return diagnostics;
 }
 
-export async function diagnose(root: string, logger: Logger): Promise<Diagnostic[]> {
+export async function diagnose(
+  root: string,
+  logger: Logger,
+): Promise<Diagnostic[]> {
   const diagnostics: Diagnostic[] = [];
   const wreckitDir = getWreckitDir(root);
 
@@ -1153,7 +1162,7 @@ export async function applyFixes(
         try {
           const itemDir = path.join(getItemsDir(root), diagnostic.itemId);
           const prdPath = path.join(itemDir, "prd.json");
-          const data = await readJson(prdPath);
+          const data = await readJson(prdPath) as Record<string, any>;
 
           // Backup before modification
           const entry = await backupFile(
