@@ -657,8 +657,10 @@ export async function spriteResumeCommand(
   const cwd = options.cwd ?? process.cwd();
 
   // Import session store and backend
-  const { SpriteSessionStore } = await import("../agent/sprite-session-store.js");
-  const { createComputeBackend, executeAgentOnBackend } = await import("../agent/compute-backend.js");
+  const { SpriteSessionStore } =
+    await import("../agent/sprite-session-store.js");
+  const { createComputeBackend, executeAgentOnBackend } =
+    await import("../agent/compute-backend.js");
   const { loadConfig } = await import("../config.js");
 
   const store = new SpriteSessionStore(cwd, logger);
@@ -700,9 +702,9 @@ export async function spriteResumeCommand(
 
     logger.info(
       `Resuming session ${sessionId}\n` +
-      `  VM: ${session.vmName}\n` +
-      `  Item: ${session.itemId || "N/A"}\n` +
-      `  Iteration: ${session.checkpoint?.iteration || 0}`
+        `  VM: ${session.vmName}\n` +
+        `  Item: ${session.itemId || "N/A"}\n` +
+        `  Iteration: ${session.checkpoint?.iteration || 0}`,
     );
 
     // Load config to get backend settings
@@ -710,7 +712,7 @@ export async function spriteResumeCommand(
 
     // Create backend (use sprites backend for session resume)
     const backend = createComputeBackend(
-      config.compute || { backend: "sprites" }
+      config.compute || { backend: "sprites" },
     );
 
     // Mark session as running
@@ -725,6 +727,7 @@ export async function spriteResumeCommand(
       cwd,
       logger,
       sessionId,
+      prompt: `Resume work on ${session.itemId || "this task"}. Continue from iteration ${session.checkpoint?.iteration || 0}.`,
     });
 
     logger.info(`Session ${sessionId} resumed and completed`);
@@ -770,13 +773,14 @@ export async function spriteResumeCommand(
  */
 export async function spriteDestroyCommand(
   sessionIdOrVmName: string,
-  options: SpriteKillOptions & { json?: boolean },
+  options: { cwd?: string; json?: boolean },
   logger: Logger,
 ): Promise<void> {
   const cwd = options.cwd ?? process.cwd();
 
   // Import session store
-  const { SpriteSessionStore } = await import("../agent/sprite-session-store.js");
+  const { SpriteSessionStore } =
+    await import("../agent/sprite-session-store.js");
 
   const store = new SpriteSessionStore(cwd, logger);
 

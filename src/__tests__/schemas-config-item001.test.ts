@@ -3,7 +3,7 @@ import {
   ComputeConfigSchema,
   LimitsConfigSchema,
   ConfigSchema,
-} from "../../schemas";
+} from "../schemas";
 
 describe("Config Schema Validation (Item 001)", () => {
   describe("ComputeConfigSchema", () => {
@@ -57,7 +57,7 @@ describe("Config Schema Validation (Item 001)", () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain("Invalid literal value");
+        expect(result.error.issues[0].message).toContain("Invalid option");
       }
     });
 

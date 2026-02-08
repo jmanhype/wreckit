@@ -1,5 +1,9 @@
 import { describe, it, expect } from "bun:test";
-import { ComputeConfigSchema, LimitsConfigSchema, ConfigSchema } from "../schemas";
+import {
+  ComputeConfigSchema,
+  LimitsConfigSchema,
+  ConfigSchema,
+} from "../schemas";
 
 describe("Config Schemas", () => {
   describe("ComputeConfigSchema", () => {
@@ -14,8 +18,8 @@ describe("Config Schemas", () => {
         backend: "sprites",
         sprites: {
           wispPath: "sprite",
-          kind: "sprite"
-        }
+          kind: "sprite",
+        },
       };
       const result = ComputeConfigSchema.safeParse(config);
       expect(result.success).toBe(true);
@@ -41,7 +45,7 @@ describe("Config Schemas", () => {
     it("should accept valid overrides", () => {
       const config = {
         maxIterations: 50,
-        maxBudgetDollars: 10
+        maxBudgetDollars: 10,
       };
       const result = LimitsConfigSchema.safeParse(config);
       expect(result.success).toBe(true);

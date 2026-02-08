@@ -2,7 +2,11 @@ import * as fs from "node:fs/promises";
 import * as readline from "node:readline";
 import type { Logger } from "../logging";
 import { findRootFromOptions } from "../fs/paths";
-import { persistItems, generateSlug, parseIdeasFromText } from "../domain/ideas"; // Added parseIdeasFromText
+import {
+  persistItems,
+  generateSlug,
+  parseIdeasFromText,
+} from "../domain/ideas"; // Added parseIdeasFromText
 import { parseIdeasWithAgent } from "../domain/ideas-agent";
 import {
   runIdeaInterview,

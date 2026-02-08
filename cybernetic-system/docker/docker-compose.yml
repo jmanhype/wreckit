@@ -8,8 +8,8 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-changeme}
       RABBITMQ_DEFAULT_VHOST: /
     ports:
-      - "5672:5672"    # AMQP
-      - "15672:15672"  # Management UI
+      - "5672:5672" # AMQP
+      - "15672:15672" # Management UI
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
@@ -103,10 +103,10 @@ services:
     image: prom/prometheus:v2.48.0
     container_name: cyb-prometheus
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
     ports:
       - "9090:9090"
     volumes:
@@ -123,10 +123,10 @@ services:
       COLLECTOR_OTLP_ENABLED: "true"
       COLLECTOR_ZIPKIN_HOST_PORT: ":9411"
     ports:
-      - "16686:16686"  # Jaeger UI
-      - "14250:14250"  # gRPC
-      - "14268:14268"  # HTTP
-      - "9411:9411"    # Zipkin
+      - "16686:16686" # Jaeger UI
+      - "14250:14250" # gRPC
+      - "14268:14268" # HTTP
+      - "9411:9411" # Zipkin
     networks:
       - cybernetic
 
@@ -136,9 +136,9 @@ services:
     container_name: cyb-otel
     command: ["--config=/etc/otel-collector.yaml"]
     ports:
-      - "4317:4317"   # OTLP gRPC
-      - "4318:4318"   # OTLP HTTP
-      - "8889:8889"   # Prometheus metrics
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+      - "8889:8889" # Prometheus metrics
     volumes:
       - ./otel/otel-collector.yaml:/etc/otel-collector.yaml:ro
     depends_on:
@@ -156,13 +156,13 @@ services:
     environment:
       # AMQP Configuration
       AMQP_URL: amqp://cybernetic:${RABBITMQ_PASSWORD:-changeme}@rabbitmq:5672
-      
+
       # Database Configuration
       DATABASE_URL: postgres://cybernetic:${POSTGRES_PASSWORD:-changeme}@postgres:5432/cybernetic
-      
+
       # Redis Configuration
       REDIS_URL: redis://default:${REDIS_PASSWORD:-changeme}@redis:6379
-      
+
       # AI Provider Keys
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       ANTHROPIC_BASE_URL: ${ANTHROPIC_BASE_URL}
@@ -172,21 +172,21 @@ services:
       OPENAI_CHAT_COMPLETIONS_PATH: ${OPENAI_CHAT_COMPLETIONS_PATH}
       OPENAI_EMBEDDINGS_PATH: ${OPENAI_EMBEDDINGS_PATH}
       TOGETHER_API_KEY: ${TOGETHER_API_KEY}
-      
+
       # Ollama Configuration
       OLLAMA_ENDPOINT: http://ollama:11434
-      
+
       # OpenTelemetry Configuration
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       OTEL_SERVICE_NAME: cybernetic
-      
+
       # Security
       CYBERNETIC_HMAC_SECRET: ${CYBERNETIC_HMAC_SECRET}
       CYBERNETIC_SYSTEM_API_KEY: ${CYBERNETIC_SYSTEM_API_KEY}
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
       JWT_SECRET: ${JWT_SECRET}
       PASSWORD_SALT: ${PASSWORD_SALT}
-      
+
       # Application Settings
       PHX_HOST: ${PHX_HOST:-localhost}
       PORT: 4000
@@ -194,9 +194,9 @@ services:
       MIX_ENV: prod
       RELEASE_DISTRIBUTION: ${RELEASE_DISTRIBUTION:-none}
     ports:
-      - "4000:4000"   # HTTP API
-      - "4369:4369"   # EPMD
-      - "9568:9568"   # Prometheus metrics
+      - "4000:4000" # HTTP API
+      - "4369:4369" # EPMD
+      - "9568:9568" # Prometheus metrics
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -216,10 +216,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: "2"
           memory: 2G
         reservations:
-          cpus: '1'
+          cpus: "1"
           memory: 1G
 
 networks:

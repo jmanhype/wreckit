@@ -63,10 +63,9 @@ describe("ideasCommand", () => {
     mockedParseIdeasWithAgent.mockReset();
 
     // Spy on git functions instead of mocking the entire module
-    hasUncommittedChangesSpy = vi.spyOn(
-      gitModule,
-      "hasUncommittedChanges",
-    ).mockResolvedValue(false);
+    hasUncommittedChangesSpy = vi
+      .spyOn(gitModule, "hasUncommittedChanges")
+      .mockResolvedValue(false);
     isGitRepoSpy = vi.spyOn(gitModule, "isGitRepo").mockResolvedValue(true);
   });
 
@@ -275,10 +274,9 @@ describe("ideasCommand - git warnings", () => {
     mockedParseIdeasWithAgent.mockReset();
 
     // Spy on git functions instead of mocking the entire module
-    hasUncommittedChangesSpy = vi.spyOn(
-      gitModule,
-      "hasUncommittedChanges",
-    ).mockResolvedValue(false);
+    hasUncommittedChangesSpy = vi
+      .spyOn(gitModule, "hasUncommittedChanges")
+      .mockResolvedValue(false);
     isGitRepoSpy = vi.spyOn(gitModule, "isGitRepo").mockResolvedValue(true);
 
     mockedParseIdeasWithAgent.mockResolvedValue([

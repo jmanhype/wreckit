@@ -97,7 +97,12 @@ async function createWreckitDir(root: string): Promise<void> {
       schema_version: 1,
       base_branch: "main",
       branch_prefix: "wreckit/",
-      agent: { command: "amp", args: [], completion_signal: "DONE" },
+      agent: {
+        kind: "process",
+        command: "amp",
+        args: [],
+        completion_signal: "DONE",
+      },
       max_iterations: 100,
       timeout_seconds: 3600,
     }),

@@ -12,19 +12,19 @@ rule_files:
 
 scrape_configs:
   # OpenTelemetry Collector metrics
-  - job_name: 'otel-collector'
+  - job_name: "otel-collector"
     static_configs:
-      - targets: ['otel-collector:8889']
+      - targets: ["otel-collector:8889"]
     scrape_interval: 30s
-    metrics_path: '/metrics'
+    metrics_path: "/metrics"
     honor_labels: true
 
   # Cybernetic application metrics (when deployed)
-  - job_name: 'cybernetic-app'
+  - job_name: "cybernetic-app"
     static_configs:
-      - targets: ['cybernetic:4000']
+      - targets: ["cybernetic:4000"]
     scrape_interval: 15s
-    metrics_path: '/metrics'
+    metrics_path: "/metrics"
     honor_labels: true
     # Add VSM system labels
     relabel_configs:
@@ -34,41 +34,41 @@ scrape_configs:
         replacement: cybernetic
 
   # RabbitMQ management metrics
-  - job_name: 'rabbitmq'
+  - job_name: "rabbitmq"
     static_configs:
-      - targets: ['rabbitmq:15692']
+      - targets: ["rabbitmq:15692"]
     scrape_interval: 30s
-    metrics_path: '/metrics'
+    metrics_path: "/metrics"
 
   # PostgreSQL metrics (if exporter is added)
-  - job_name: 'postgres'
+  - job_name: "postgres"
     static_configs:
-      - targets: ['postgres-exporter:9187']
+      - targets: ["postgres-exporter:9187"]
     scrape_interval: 30s
-    metrics_path: '/metrics'
+    metrics_path: "/metrics"
 
   # Redis metrics (if exporter is added)
-  - job_name: 'redis'
+  - job_name: "redis"
     static_configs:
-      - targets: ['redis-exporter:9121']
+      - targets: ["redis-exporter:9121"]
     scrape_interval: 30s
-    metrics_path: '/metrics'
+    metrics_path: "/metrics"
 
   # Node exporter for system metrics
-  - job_name: 'node-exporter'
+  - job_name: "node-exporter"
     static_configs:
-      - targets: ['node-exporter:9100']
+      - targets: ["node-exporter:9100"]
     scrape_interval: 30s
 
   # Prometheus self-monitoring
-  - job_name: 'prometheus'
+  - job_name: "prometheus"
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ["localhost:9090"]
     scrape_interval: 30s
 
   # Jaeger metrics
-  - job_name: 'jaeger'
+  - job_name: "jaeger"
     static_configs:
-      - targets: ['jaeger:14269']
+      - targets: ["jaeger:14269"]
     scrape_interval: 30s
-    metrics_path: '/metrics'
+    metrics_path: "/metrics"

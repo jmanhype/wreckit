@@ -2,7 +2,10 @@ import { describe, test, expect, beforeEach, afterEach } from "bun:test";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
-import { SpriteSessionStore, type SpriteSession } from "../../agent/sprite-session-store";
+import {
+  SpriteSessionStore,
+  type SpriteSession,
+} from "../../agent/sprite-session-store";
 import { initLogger } from "../../logging";
 
 describe("SpriteSessionStore", () => {
@@ -13,6 +16,9 @@ describe("SpriteSessionStore", () => {
   beforeEach(async () => {
     // Create a temporary directory for testing
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "wreckit-session-test-"));
+    // Create required directories for findRepoRoot
+    await fs.mkdir(path.join(tempDir, ".git"), { recursive: true });
+    await fs.mkdir(path.join(tempDir, ".wreckit"), { recursive: true });
     logger = initLogger();
     store = new SpriteSessionStore(tempDir, logger);
   });
@@ -26,7 +32,9 @@ describe("SpriteSessionStore", () => {
     }
   });
 
-  const createMockSession = (overrides?: Partial<SpriteSession>): SpriteSession => ({
+  const createMockSession = (
+    overrides?: Partial<SpriteSession>,
+  ): SpriteSession => ({
     sessionId: "test-session-123",
     vmName: "test-vm",
     itemId: "test-item",
@@ -50,8 +58,16 @@ describe("SpriteSessionStore", () => {
     const session = createMockSession();
     await store.save(session);
 
-    const sessionPath = path.join(tempDir, ".wreckit", "sessions", `${session.sessionId}.json`);
-    const exists = await fs.access(sessionPath).then(() => true).catch(() => false);
+    const sessionPath = path.join(
+      tempDir,
+      ".wreckit",
+      "sessions",
+      `${session.sessionId}.json`,
+    );
+    const exists = await fs
+      .access(sessionPath)
+      .then(() => true)
+      .catch(() => false);
     expect(exists).toBe(true);
   });
 
@@ -60,7 +76,10 @@ describe("SpriteSessionStore", () => {
     await store.save(session);
 
     const sessionsDir = path.join(tempDir, ".wreckit", "sessions");
-    const exists = await fs.access(sessionsDir).then(() => true).catch(() => false);
+    const exists = await fs
+      .access(sessionsDir)
+      .then(() => true)
+      .catch(() => false);
     expect(exists).toBe(true);
   });
 
@@ -107,9 +126,18 @@ describe("SpriteSessionStore", () => {
   });
 
   test("list({ state: 'paused' }) filters by state", async () => {
-    const session1 = createMockSession({ sessionId: "session-1", state: "running" });
-    const session2 = createMockSession({ sessionId: "session-2", state: "paused" });
-    const session3 = createMockSession({ sessionId: "session-3", state: "paused" });
+    const session1 = createMockSession({
+      sessionId: "session-1",
+      state: "running",
+    });
+    const session2 = createMockSession({
+      sessionId: "session-2",
+      state: "paused",
+    });
+    const session3 = createMockSession({
+      sessionId: "session-3",
+      state: "paused",
+    });
 
     await store.save(session1);
     await store.save(session2);
@@ -117,13 +145,22 @@ describe("SpriteSessionStore", () => {
 
     const sessions = await store.list({ state: "paused" });
     expect(sessions).toHaveLength(2);
-    expect(sessions.every(s => s.state === "paused")).toBe(true);
+    expect(sessions.every((s) => s.state === "paused")).toBe(true);
   });
 
   test("list({ itemId: '001' }) filters by itemId", async () => {
-    const session1 = createMockSession({ sessionId: "session-1", itemId: "item-1" });
-    const session2 = createMockSession({ sessionId: "session-2", itemId: "item-2" });
-    const session3 = createMockSession({ sessionId: "session-3", itemId: "item-1" });
+    const session1 = createMockSession({
+      sessionId: "session-1",
+      itemId: "item-1",
+    });
+    const session2 = createMockSession({
+      sessionId: "session-2",
+      itemId: "item-2",
+    });
+    const session3 = createMockSession({
+      sessionId: "session-3",
+      itemId: "item-1",
+    });
 
     await store.save(session1);
     await store.save(session2);
@@ -131,13 +168,25 @@ describe("SpriteSessionStore", () => {
 
     const sessions = await store.list({ itemId: "item-1" });
     expect(sessions).toHaveLength(2);
-    expect(sessions.every(s => s.itemId === "item-1")).toBe(true);
+    expect(sessions.every((s) => s.itemId === "item-1")).toBe(true);
   });
 
   test("list({ state: 'paused', itemId: '001' }) filters by both", async () => {
-    const session1 = createMockSession({ sessionId: "session-1", state: "running", itemId: "item-1" });
-    const session2 = createMockSession({ sessionId: "session-2", state: "paused", itemId: "item-1" });
-    const session3 = createMockSession({ sessionId: "session-3", state: "paused", itemId: "item-2" });
+    const session1 = createMockSession({
+      sessionId: "session-1",
+      state: "running",
+      itemId: "item-1",
+    });
+    const session2 = createMockSession({
+      sessionId: "session-2",
+      state: "paused",
+      itemId: "item-1",
+    });
+    const session3 = createMockSession({
+      sessionId: "session-3",
+      state: "paused",
+      itemId: "item-2",
+    });
 
     await store.save(session1);
     await store.save(session2);
@@ -154,14 +203,24 @@ describe("SpriteSessionStore", () => {
 
     await store.delete(session.sessionId);
 
-    const sessionPath = path.join(tempDir, ".wreckit", "sessions", `${session.sessionId}.json`);
-    const exists = await fs.access(sessionPath).then(() => true).catch(() => false);
+    const sessionPath = path.join(
+      tempDir,
+      ".wreckit",
+      "sessions",
+      `${session.sessionId}.json`,
+    );
+    const exists = await fs
+      .access(sessionPath)
+      .then(() => true)
+      .catch(() => false);
     expect(exists).toBe(false);
   });
 
   test("delete() handles non-existent session gracefully", async () => {
     // Should not throw
-    await expect(store.delete("non-existent-session")).resolves.not.toThrow();
+    await store.delete("non-existent-session");
+    // If we reach here, the test passes
+    expect(true).toBe(true);
   });
 
   test("updateState() updates session state and fields", async () => {
@@ -183,7 +242,7 @@ describe("SpriteSessionStore", () => {
 
   test("updateState() throws error for non-existent session", async () => {
     await expect(
-      store.updateState("non-existent-session", "paused")
+      store.updateState("non-existent-session", "paused"),
     ).rejects.toThrow("Session non-existent-session not found");
   });
 

@@ -386,7 +386,7 @@ async function diagnoseItem(
 
   if (hasPrd) {
     try {
-      const prdData = await readJson(prdPath) as Record<string, any>;
+      const prdData = (await readJson(prdPath)) as Record<string, any>;
 
       // Check for missing required fields (fixable issues)
       // We check these before schema validation to provide specific, fixable diagnostics
@@ -1162,7 +1162,7 @@ export async function applyFixes(
         try {
           const itemDir = path.join(getItemsDir(root), diagnostic.itemId);
           const prdPath = path.join(itemDir, "prd.json");
-          const data = await readJson(prdPath) as Record<string, any>;
+          const data = (await readJson(prdPath)) as Record<string, any>;
 
           // Backup before modification
           const entry = await backupFile(

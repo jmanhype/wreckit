@@ -20,14 +20,14 @@
             "thresholds": {
               "mode": "absolute",
               "steps": [
-                {"color": "red", "value": null},
-                {"color": "green", "value": 1}
+                { "color": "red", "value": null },
+                { "color": "green", "value": 1 }
               ]
             },
             "unit": "short"
           }
         },
-        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+        "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
         "id": 1,
         "options": {
           "colorMode": "background",
@@ -63,14 +63,14 @@
             "thresholds": {
               "mode": "absolute",
               "steps": [
-                {"color": "green", "value": null},
-                {"color": "red", "value": 80}
+                { "color": "green", "value": null },
+                { "color": "red", "value": 80 }
               ]
             },
             "unit": "short"
           }
         },
-        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+        "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
         "id": 2,
         "options": {
           "colorMode": "value",
@@ -102,7 +102,7 @@
         },
         "fieldConfig": {
           "defaults": {
-            "color": {"mode": "palette-classic"},
+            "color": { "mode": "palette-classic" },
             "custom": {
               "axisCenteredZero": false,
               "axisColorMode": "text",
@@ -121,24 +121,24 @@
               "lineInterpolation": "linear",
               "lineWidth": 1,
               "pointSize": 5,
-              "scaleDistribution": {"type": "linear"},
+              "scaleDistribution": { "type": "linear" },
               "showPoints": "never",
               "spanNulls": false,
-              "stacking": {"group": "A", "mode": "none"},
-              "thresholdsStyle": {"mode": "off"}
+              "stacking": { "group": "A", "mode": "none" },
+              "thresholdsStyle": { "mode": "off" }
             },
             "mappings": [],
             "thresholds": {
               "mode": "absolute",
               "steps": [
-                {"color": "green", "value": null},
-                {"color": "red", "value": 80}
+                { "color": "green", "value": null },
+                { "color": "red", "value": 80 }
               ]
             },
             "unit": "short"
           }
         },
-        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
         "id": 3,
         "options": {
           "legend": {
@@ -178,14 +178,12 @@
             "mappings": [],
             "thresholds": {
               "mode": "absolute",
-              "steps": [
-                {"color": "green", "value": null}
-              ]
+              "steps": [{ "color": "green", "value": null }]
             },
             "unit": "short"
           }
         },
-        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+        "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
         "id": 4,
         "options": {
           "colorMode": "background",
@@ -223,15 +221,15 @@
             "thresholds": {
               "mode": "absolute",
               "steps": [
-                {"color": "green", "value": null},
-                {"color": "yellow", "value": 60},
-                {"color": "red", "value": 80}
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 60 },
+                { "color": "red", "value": 80 }
               ]
             },
             "unit": "percent"
           }
         },
-        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+        "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
         "id": 5,
         "options": {
           "orientation": "auto",

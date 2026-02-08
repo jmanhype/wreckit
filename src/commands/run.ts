@@ -85,10 +85,7 @@ export async function runCommand(
   } = options;
 
   const root = findRootFromOptions(options);
-  const config = await loadConfig(
-    root,
-    sandbox ? { sandbox } : undefined,
-  );
+  const config = await loadConfig(root, sandbox ? { sandbox } : undefined);
 
   const itemDir = getItemDir(root, itemId);
   let item: Item;

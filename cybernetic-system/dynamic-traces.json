@@ -1,8 +1,6 @@
 {
   "summary": {
-    "entry_points_covered": [
-      "unknown"
-    ],
+    "entry_points_covered": ["unknown"],
     "total_spans": 8,
     "trace_count": 8
   },

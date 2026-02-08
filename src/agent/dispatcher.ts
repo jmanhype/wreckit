@@ -173,7 +173,6 @@ export async function dispatchAgent(
     case "sprite": {
       const { runSpriteAgent } = await import("./sprite-runner.js");
       return runSpriteAgent(config as SpriteAgentConfig, {
-        config: config as SpriteAgentConfig,
         cwd: options.cwd,
         prompt: options.prompt,
         logger: options.logger,

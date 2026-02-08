@@ -1,5 +1,10 @@
 import { describe, it, expect } from "bun:test";
-import { enforceLimits, LimitsTracker, LimitExceededError, type LimitsContext } from "../agent/limits";
+import {
+  enforceLimits,
+  LimitsTracker,
+  LimitExceededError,
+  type LimitsContext,
+} from "../agent/limits";
 import type { LimitsConfig } from "../schemas";
 import { type Logger } from "../logging";
 
@@ -34,7 +39,9 @@ describe("Limits Enforcement", () => {
       durationSeconds: 30,
       progressSteps: 50,
     };
-    expect(() => enforceLimits(defaults, context, mockLogger)).toThrow(LimitExceededError);
+    expect(() => enforceLimits(defaults, context, mockLogger)).toThrow(
+      LimitExceededError,
+    );
   });
 
   it("should throw when maxDurationSeconds exceeded", () => {
@@ -43,7 +50,9 @@ describe("Limits Enforcement", () => {
       durationSeconds: 60,
       progressSteps: 50,
     };
-    expect(() => enforceLimits(defaults, context, mockLogger)).toThrow(LimitExceededError);
+    expect(() => enforceLimits(defaults, context, mockLogger)).toThrow(
+      LimitExceededError,
+    );
   });
 
   it("should throw when maxProgressSteps exceeded", () => {
@@ -52,27 +61,29 @@ describe("Limits Enforcement", () => {
       durationSeconds: 30,
       progressSteps: 100,
     };
-    expect(() => enforceLimits(defaults, context, mockLogger)).toThrow(LimitExceededError);
+    expect(() => enforceLimits(defaults, context, mockLogger)).toThrow(
+      LimitExceededError,
+    );
   });
 
   describe("LimitsTracker", () => {
     it("should track progress", () => {
       const tracker = new LimitsTracker();
       expect(tracker.getProgressSteps()).toBe(0);
-      
+
       tracker.incrementProgress();
       expect(tracker.getProgressSteps()).toBe(1);
-      
+
       tracker.incrementProgress(5);
       expect(tracker.getProgressSteps()).toBe(6);
-      
+
       tracker.resetProgress();
       expect(tracker.getProgressSteps()).toBe(0);
     });
 
     it("should calculate duration", async () => {
       const tracker = new LimitsTracker();
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
       const context = tracker.getContext(1);
       expect(context.durationSeconds).toBeGreaterThan(0);
       expect(context.iterations).toBe(1);

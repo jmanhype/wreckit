@@ -287,7 +287,9 @@ export const LimitsConfigSchema = z
     maxBudgetDollars: z
       .number()
       .optional()
-      .describe("Maximum estimated cost in USD (future: integrate with Fly.io API)"),
+      .describe(
+        "Maximum estimated cost in USD (future: integrate with Fly.io API)",
+      ),
     maxProgressSteps: z
       .number()
       .default(1000)

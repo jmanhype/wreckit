@@ -1,4 +1,4 @@
-import type { Logger } from "pino";
+import type { Logger } from "../logging";
 import type { LimitsConfig } from "../schemas";
 
 /**
@@ -15,7 +15,11 @@ export interface LimitsContext {
  */
 export class LimitExceededError extends Error {
   constructor(
-    public readonly limitType: "iterations" | "duration" | "progress" | "budget",
+    public readonly limitType:
+      | "iterations"
+      | "duration"
+      | "progress"
+      | "budget",
     public readonly limitValue: number,
     public readonly actualValue: number,
   ) {
@@ -25,10 +29,10 @@ export class LimitExceededError extends Error {
           limitType === "iterations"
             ? "maxIterations"
             : limitType === "duration"
-            ? "maxDurationSeconds"
-            : limitType === "progress"
-            ? "maxProgressSteps"
-            : "maxBudgetDollars"
+              ? "maxDurationSeconds"
+              : limitType === "progress"
+                ? "maxProgressSteps"
+                : "maxBudgetDollars"
         } to increase.`,
     );
     this.name = "LimitExceededError";
@@ -48,11 +52,7 @@ export function enforceLimits(
   // Check iterations
   if (context.iterations >= limits.maxIterations) {
     logger.warn(
-      {
-        limit: limits.maxIterations,
-        actual: context.iterations,
-      },
-      "Iterations limit exceeded",
+      `Iterations limit exceeded: ${context.iterations} >= ${limits.maxIterations}`,
     );
     throw new LimitExceededError(
       "iterations",
@@ -64,11 +64,7 @@ export function enforceLimits(
   // Check duration
   if (context.durationSeconds >= limits.maxDurationSeconds) {
     logger.warn(
-      {
-        limit: limits.maxDurationSeconds,
-        actual: context.durationSeconds,
-      },
-      "Duration limit exceeded",
+      `Duration limit exceeded: ${context.durationSeconds} >= ${limits.maxDurationSeconds}`,
     );
     throw new LimitExceededError(
       "duration",
@@ -84,11 +80,7 @@ export function enforceLimits(
     const estimatedCost = estimateCost(context.durationSeconds);
     if (estimatedCost >= limits.maxBudgetDollars) {
       logger.warn(
-        {
-          limit: limits.maxBudgetDollars,
-          actual: estimatedCost,
-        },
-        "Budget limit exceeded",
+        `Budget limit exceeded: $${estimatedCost.toFixed(4)} >= $${limits.maxBudgetDollars.toFixed(4)}`,
       );
       throw new LimitExceededError(
         "budget",
@@ -101,11 +93,7 @@ export function enforceLimits(
   // Check progress steps
   if (context.progressSteps >= limits.maxProgressSteps) {
     logger.warn(
-      {
-        limit: limits.maxProgressSteps,
-        actual: context.progressSteps,
-      },
-      "Progress steps limit exceeded",
+      `Progress steps limit exceeded: ${context.progressSteps} >= ${limits.maxProgressSteps}`,
     );
     throw new LimitExceededError(
       "progress",
@@ -116,24 +104,12 @@ export function enforceLimits(
 
   // Log current usage for debugging
   logger.debug(
-    {
-      iterations: { current: context.iterations, max: limits.maxIterations },
-      duration: {
-        current: context.durationSeconds,
-        max: limits.maxDurationSeconds,
-      },
-      progress: {
-        current: context.progressSteps,
-        max: limits.maxProgressSteps,
-      },
-      ...(limits.maxBudgetDollars && {
-        budget: {
-          current: estimateCost(context.durationSeconds),
-          max: limits.maxBudgetDollars,
-        },
-      }),
-    },
-    "Limits check passed",
+    `Limits check: iterations=${context.iterations}/${limits.maxIterations}, ` +
+      `duration=${context.durationSeconds}/${limits.maxDurationSeconds}, ` +
+      `progress=${context.progressSteps}/${limits.maxProgressSteps}` +
+      (limits.maxBudgetDollars
+        ? `, budget=$${estimateCost(context.durationSeconds).toFixed(4)}/$${limits.maxBudgetDollars.toFixed(4)}`
+        : ""),
   );
 }
 

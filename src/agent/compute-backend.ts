@@ -1,5 +1,10 @@
 import type { Logger } from "../logging";
-import type { ComputeConfig, LimitsConfig, AgentConfigUnion } from "../schemas";
+import type {
+  ComputeConfig,
+  LimitsConfig,
+  AgentConfigUnion,
+  SpriteAgentConfig,
+} from "../schemas";
 import { runAgentUnion, type AgentResult } from "./runner";
 import { runSpriteAgent } from "./sprite-runner";
 import { SpriteSessionStore } from "./sprite-session-store";
@@ -42,7 +47,7 @@ export class LocalBackend implements ComputeBackend {
   async executeAgent(options: ExecuteAgentOptions): Promise<AgentResult> {
     const { itemId, agentConfig, cwd, logger, prompt } = options;
 
-    logger.info({ itemId }, "Executing agent in local backend");
+    logger.info(`Executing agent in local backend: ${itemId}`);
 
     try {
       // Call existing agent runner
@@ -62,7 +67,9 @@ export class LocalBackend implements ComputeBackend {
 
       return result;
     } catch (error) {
-      logger.error({ error, itemId }, "Local execution failed");
+      logger.error(
+        `Local execution failed for ${itemId}: ${error instanceof Error ? error.message : String(error)}`,
+      );
       return {
         success: false,
         output: error instanceof Error ? error.message : String(error),
@@ -79,10 +86,10 @@ export class LocalBackend implements ComputeBackend {
  */
 export class SpritesBackend implements ComputeBackend {
   readonly kind = "sprites" as const;
-  private readonly spritesConfig: NonNullable<ComputeConfig["sprites"]>;
+  private readonly spritesConfig: Partial<SpriteAgentConfig>;
   private sessionStore: SpriteSessionStore | null = null;
 
-  constructor(spritesConfig?: NonNullable<ComputeConfig["sprites"]>) {
+  constructor(spritesConfig?: Partial<SpriteAgentConfig>) {
     this.spritesConfig = spritesConfig || {};
   }
 
@@ -104,7 +111,9 @@ export class SpritesBackend implements ComputeBackend {
       prompt,
     } = options;
 
-    logger.info({ itemId, sessionId }, "Executing agent in sprites backend");
+    logger.info(
+      `Executing agent in sprites backend: ${itemId}${sessionId ? ` (session: ${sessionId})` : ""}`,
+    );
 
     // Load session if resuming
     let session = null;
@@ -127,19 +136,20 @@ export class SpritesBackend implements ComputeBackend {
       await store.updateState(sessionId, "running");
 
       logger.info(
-        {
-          sessionId,
-          vmName: session.vmName,
-          iteration: session.checkpoint?.iteration,
-        },
-        "Resuming session",
+        `Resuming session ${sessionId} in VM ${session.vmName} at iteration ${session.checkpoint?.iteration || 0}`,
       );
     }
 
     try {
       // Merge agent config with sprites config
       // Note: agentConfig must be kind="sprite" for sprites backend
-      const mergedConfig = {
+      if (agentConfig.kind !== "sprite") {
+        throw new Error(
+          `Sprites backend requires sprite agent config, got: ${agentConfig.kind}`,
+        );
+      }
+
+      const mergedConfig: SpriteAgentConfig = {
         ...agentConfig,
         ...this.spritesConfig,
       };
@@ -179,7 +189,9 @@ export class SpritesBackend implements ComputeBackend {
         });
       }
 
-      logger.error({ error, itemId }, "Sprites execution failed");
+      logger.error(
+        `Sprites execution failed for ${itemId}: ${error instanceof Error ? error.message : String(error)}`,
+      );
       return {
         success: false,
         output: error instanceof Error ? error.message : String(error),

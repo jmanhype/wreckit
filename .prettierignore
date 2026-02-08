@@ -19,3 +19,6 @@ package-lock.json
 
 # Temporary inspect scripts
 inspect_*.ts
+
+# External projects
+cybernetic-system/

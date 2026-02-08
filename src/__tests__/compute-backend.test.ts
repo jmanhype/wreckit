@@ -1,5 +1,9 @@
 import { describe, it, expect } from "bun:test";
-import { createComputeBackend, LocalBackend, SpritesBackend } from "../agent/compute-backend";
+import {
+  createComputeBackend,
+  LocalBackend,
+  SpritesBackend,
+} from "../agent/compute-backend";
 import type { ComputeConfig } from "../schemas";
 
 describe("ComputeBackend Factory", () => {
@@ -27,7 +31,7 @@ describe("ComputeBackend Factory", () => {
         defaultMemory: "512MiB",
         defaultCPUs: "1",
         timeout: 300,
-        kind: "sprite"
+        kind: "sprite",
       },
     };
     const backend = createComputeBackend(config);
@@ -37,6 +41,8 @@ describe("ComputeBackend Factory", () => {
 
   it("should throw when sprites config is missing", () => {
     const config: ComputeConfig = { backend: "sprites" };
-    expect(() => createComputeBackend(config)).toThrow("Sprites backend requires sprites configuration");
+    expect(() => createComputeBackend(config)).toThrow(
+      "Sprites backend requires sprites configuration",
+    );
   });
 });

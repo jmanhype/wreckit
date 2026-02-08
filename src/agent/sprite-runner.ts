@@ -28,7 +28,6 @@ import {
 // ============================================================
 
 export interface SpriteRunAgentOptions {
-  config: SpriteAgentConfig;
   cwd: string;
   prompt: string;
   logger: Logger;
@@ -51,7 +50,7 @@ export interface SpriteRunAgentOptions {
   /** Use this specific VM name (for resume functionality) */
   vmName?: string;
   /** Limits configuration */
-  limits?: import("./limits").LimitsConfig;
+  limits?: import("../schemas").LimitsConfig;
 }
 
 // ============================================================
@@ -194,7 +193,10 @@ export async function runSpriteAgent(
 
   try {
     // 1. Initialize VM
-    logger.info({ vmName, resumeFromIteration, sessionId }, sessionId ? `Resuming Sprite execution in ${vmName}` : `Initializing Sprite environment (${vmName})...`);
+    const initMsg = sessionId
+      ? `Resuming Sprite execution in ${vmName} (session: ${sessionId}, iteration: ${resumeFromIteration})`
+      : `Initializing Sprite environment (${vmName})...`;
+    logger.info(initMsg);
     if (ephemeral) currentEphemeralVM = { vmName, startTime: Date.now() };
 
     const vmReady = await ensureSpriteRunning(vmName, config, logger);

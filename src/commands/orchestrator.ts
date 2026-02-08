@@ -146,13 +146,10 @@ export async function orchestrateAll(
   } = options;
 
   const root = findRootFromOptions(options);
-  const config = await loadConfig(
-    root,
-    {
-      ...(agentKind ? { agentKind } : undefined),
-      ...(sandbox ? { sandbox } : undefined),
-    },
-  );
+  const config = await loadConfig(root, {
+    ...(agentKind ? { agentKind } : undefined),
+    ...(sandbox ? { sandbox } : undefined),
+  });
 
   const items = await scanItems(root);
 
@@ -626,13 +623,10 @@ export async function orchestrateNext(
   } = options;
 
   const root = findRootFromOptions(options);
-  const config = await loadConfig(
-    root,
-    {
-      ...(agentKind ? { agentKind } : undefined),
-      ...(sandbox ? { sandbox } : undefined),
-    },
-  );
+  const config = await loadConfig(root, {
+    ...(agentKind ? { agentKind } : undefined),
+    ...(sandbox ? { sandbox } : undefined),
+  });
 
   const nextItemId = await getNextIncompleteItem(root);
 

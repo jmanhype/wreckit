@@ -56,7 +56,7 @@ describe("ComputeBackend", () => {
       const config: ComputeConfig = { backend: "sprites" };
 
       expect(() => createComputeBackend(config)).toThrow(
-        "Sprites backend requires sprites configuration"
+        "Sprites backend requires sprites configuration",
       );
     });
 
@@ -64,7 +64,7 @@ describe("ComputeBackend", () => {
       const config = { backend: "unknown" as any };
 
       expect(() => createComputeBackend(config)).toThrow(
-        "Unknown compute backend: unknown"
+        "Unknown compute backend: unknown",
       );
     });
   });
@@ -88,6 +88,7 @@ describe("ComputeBackend", () => {
         computeConfig: { backend: "local" as const },
         cwd: "/tmp",
         logger,
+        prompt: "test prompt",
       };
 
       // Note: This will fail to actually execute since we're not in a real repo
@@ -151,6 +152,7 @@ describe("ComputeBackend", () => {
         computeConfig: { backend: "local" as const },
         cwd: "/tmp",
         logger,
+        prompt: "test prompt",
       };
 
       // Mock the backend to verify it's called

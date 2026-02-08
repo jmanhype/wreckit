@@ -106,9 +106,7 @@ export class SpriteSessionStore {
       }
 
       // Sort by start time (newest first)
-      sessions.sort((a, b) =>
-        b.startTime.localeCompare(a.startTime)
-      );
+      sessions.sort((a, b) => b.startTime.localeCompare(a.startTime));
 
       return sessions;
     } catch (err: any) {
@@ -142,7 +140,9 @@ export class SpriteSessionStore {
   async updateState(
     sessionId: string,
     state: SpriteSession["state"],
-    updates?: Partial<Omit<SpriteSession, "sessionId" | "vmName" | "startTime" | "config">>
+    updates?: Partial<
+      Omit<SpriteSession, "sessionId" | "vmName" | "startTime" | "config">
+    >,
   ): Promise<void> {
     const session = await this.load(sessionId);
     if (!session) {
@@ -150,6 +150,10 @@ export class SpriteSessionStore {
     }
 
     session.state = state;
+    // Automatically set endTime when state becomes 'completed' or 'failed'
+    if (state === "completed" || state === "failed") {
+      session.endTime = new Date().toISOString();
+    }
     if (updates) {
       Object.assign(session, updates);
     }

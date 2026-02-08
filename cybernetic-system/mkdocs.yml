@@ -105,28 +105,28 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Getting Started:
-    - Installation: getting-started/installation.md
-    - Setup Guide: README_SETUP.md
+      - Installation: getting-started/installation.md
+      - Setup Guide: README_SETUP.md
   - API:
-    - Overview: api/overview.md
+      - Overview: api/overview.md
   - Architecture:
-    - Overview: architecture.md
-    - Features: features.md
+      - Overview: architecture.md
+      - Features: features.md
   - Deployment:
-    - Guide: DEPLOYMENT.md
-    - Staging: STAGING_DEPLOYMENT.md
-    - Proof: DEPLOYMENT_PROOF.md
+      - Guide: DEPLOYMENT.md
+      - Staging: STAGING_DEPLOYMENT.md
+      - Proof: DEPLOYMENT_PROOF.md
   - AI Providers:
-    - Anthropic: ANTHROPIC_PROVIDER_SUMMARY.md
-    - Ollama: ollama_s4_summary.md
+      - Anthropic: ANTHROPIC_PROVIDER_SUMMARY.md
+      - Ollama: ollama_s4_summary.md
   - Monitoring:
-    - Telemetry: OTEL_STAGING_GUIDE.md
-    - Analysis: polling_analysis.md
+      - Telemetry: OTEL_STAGING_GUIDE.md
+      - Analysis: polling_analysis.md
   - Reports:
-    - Completion: COMPLETION_REPORT.md
+      - Completion: COMPLETION_REPORT.md
   - Development:
-    - Claude Config: CLAUDE.md
-    - Secrets: SECRETS.md
+      - Claude Config: CLAUDE.md
+      - Secrets: SECRETS.md
 
 extra:
   social:

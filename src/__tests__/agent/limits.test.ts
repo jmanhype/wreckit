@@ -1,5 +1,9 @@
-import { describe, test, expect } from "bun:test";
-import { enforceLimits, LimitsTracker, LimitExceededError } from "../../agent/limits";
+import { describe, test, expect, beforeEach } from "bun:test";
+import {
+  enforceLimits,
+  LimitsTracker,
+  LimitExceededError,
+} from "../../agent/limits";
 import type { LimitsConfig } from "../../schemas";
 import { initLogger } from "../../logging";
 
@@ -26,8 +30,12 @@ describe("Limits Enforcement", () => {
         progressSteps: 50,
       };
 
-      expect(() => enforceLimits(limits, context, logger)).toThrow(LimitExceededError);
-      expect(() => enforceLimits(limits, context, logger)).toThrow("Iterations limit exceeded");
+      expect(() => enforceLimits(limits, context, logger)).toThrow(
+        LimitExceededError,
+      );
+      expect(() => enforceLimits(limits, context, logger)).toThrow(
+        "Limit exceeded: iterations",
+      );
     });
 
     test("throws LimitExceededError when durationSeconds >= maxDurationSeconds", () => {
@@ -38,8 +46,12 @@ describe("Limits Enforcement", () => {
         progressSteps: 50,
       };
 
-      expect(() => enforceLimits(limits, context, logger)).toThrow(LimitExceededError);
-      expect(() => enforceLimits(limits, context, logger)).toThrow("Duration limit exceeded");
+      expect(() => enforceLimits(limits, context, logger)).toThrow(
+        LimitExceededError,
+      );
+      expect(() => enforceLimits(limits, context, logger)).toThrow(
+        "Limit exceeded: duration",
+      );
     });
 
     test("throws LimitExceededError when progressSteps >= maxProgressSteps", () => {
@@ -50,8 +62,12 @@ describe("Limits Enforcement", () => {
         progressSteps: 100,
       };
 
-      expect(() => enforceLimits(limits, context, logger)).toThrow(LimitExceededError);
-      expect(() => enforceLimits(limits, context, logger)).toThrow("Progress steps limit exceeded");
+      expect(() => enforceLimits(limits, context, logger)).toThrow(
+        LimitExceededError,
+      );
+      expect(() => enforceLimits(limits, context, logger)).toThrow(
+        "Limit exceeded: progress",
+      );
     });
 
     test("throws LimitExceededError when budget exceeded (if set)", () => {
@@ -62,8 +78,12 @@ describe("Limits Enforcement", () => {
         progressSteps: 50,
       };
 
-      expect(() => enforceLimits(limits, context, logger)).toThrow(LimitExceededError);
-      expect(() => enforceLimits(limits, context, logger)).toThrow("Budget limit exceeded");
+      expect(() => enforceLimits(limits, context, logger)).toThrow(
+        LimitExceededError,
+      );
+      expect(() => enforceLimits(limits, context, logger)).toThrow(
+        "Limit exceeded: budget",
+      );
     });
 
     test("passes when all limits within bounds", () => {
@@ -113,7 +133,7 @@ describe("Limits Enforcement", () => {
       const tracker = new LimitsTracker();
 
       // Wait 100ms
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       const duration = tracker.getDurationSeconds();
       expect(duration).toBeGreaterThanOrEqual(0.1);

@@ -2,7 +2,10 @@ import { describe, it, expect, beforeEach, afterEach } from "bun:test";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import * as os from "node:os";
-import { SpriteSessionStore, type SpriteSession } from "../agent/sprite-session-store";
+import {
+  SpriteSessionStore,
+  type SpriteSession,
+} from "../agent/sprite-session-store";
 import { type Logger } from "../logging";
 
 const mockLogger = {

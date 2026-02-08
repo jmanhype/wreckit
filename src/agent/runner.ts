@@ -298,7 +298,6 @@ export async function runAgentUnion(
       // Detect ephemeral mode: auto-generated VM name means ephemeral
       const isEphemeral = !config.vmName;
       return runSpriteAgent(config, {
-        config,
         cwd: options.cwd,
         prompt: options.prompt,
         logger: options.logger,

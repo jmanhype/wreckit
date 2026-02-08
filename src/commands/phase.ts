@@ -160,10 +160,7 @@ export async function runPhaseCommand(
   const { force = false, dryRun = false, cwd, sandbox } = options;
 
   const root = findRootFromOptions(options);
-  const config = await loadConfig(
-    root,
-    sandbox ? { sandbox } : undefined,
-  );
+  const config = await loadConfig(root, sandbox ? { sandbox } : undefined);
 
   const itemDir = getItemDir(root, itemId);
   let item;

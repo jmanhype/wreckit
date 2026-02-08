@@ -16,37 +16,37 @@ on:
   push:
     branches: [main, master, develop]
     paths:
-      - '**.py'
-      - '**.js'
-      - '**.ts'
-      - '**.jsx'
-      - '**.tsx'
-      - '**.go'
-      - '**.rs'
-      - '**.rb'
-      - '**.java'
-      - '**.kt'
-      - 'package.json'
-      - 'pyproject.toml'
-      - 'go.mod'
-      - 'Cargo.toml'
-      - 'Gemfile'
-      - 'pom.xml'
-      - 'build.gradle*'
+      - "**.py"
+      - "**.js"
+      - "**.ts"
+      - "**.jsx"
+      - "**.tsx"
+      - "**.go"
+      - "**.rs"
+      - "**.rb"
+      - "**.java"
+      - "**.kt"
+      - "package.json"
+      - "pyproject.toml"
+      - "go.mod"
+      - "Cargo.toml"
+      - "Gemfile"
+      - "pom.xml"
+      - "build.gradle*"
 
   pull_request:
     branches: [main, master, develop]
     paths:
-      - '**.py'
-      - '**.js'
-      - '**.ts'
-      - '**.jsx'
-      - '**.tsx'
-      - '**.go'
-      - '**.rs'
-      - '**.rb'
-      - '**.java'
-      - '**.kt'
+      - "**.py"
+      - "**.js"
+      - "**.ts"
+      - "**.jsx"
+      - "**.tsx"
+      - "**.go"
+      - "**.rs"
+      - "**.rb"
+      - "**.java"
+      - "**.kt"
 
 jobs:
   #############################################

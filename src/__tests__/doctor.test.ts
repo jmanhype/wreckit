@@ -115,7 +115,7 @@ describe("diagnose", () => {
         base_branch: "main",
         branch_prefix: "wreckit/",
         agent: {
-          mode: "process",
+          kind: "process",
           command: "amp",
           args: [],
           completion_signal: "DONE",
@@ -1063,7 +1063,7 @@ describe("doctorCommand", () => {
         base_branch: "main",
         branch_prefix: "wreckit/",
         agent: {
-          mode: "process",
+          kind: "process",
           command: "amp",
           args: [],
           completion_signal: "DONE",
