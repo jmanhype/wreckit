@@ -1361,6 +1361,11 @@ export async function runPhasePr(
       await fs.appendFile(progressPath, logEntry, "utf-8");
     }
 
+    // Commit the "done" state + progress log so subsequent items see it
+    if (await hasUncommittedChanges(gitOptions)) {
+      await commitAll(`chore(${itemSlug}): mark done`, gitOptions);
+    }
+
     logger.info(
       `Merged ${itemId} directly to ${config.base_branch} (direct mode)` +
         (rollbackSha ? ` - Rollback SHA: ${rollbackSha}` : ""),
