@@ -3,7 +3,7 @@
   "id": "092-recursive-evolution-the-watchdog",
   "title": "Recursive Evolution: The Watchdog",
   "section": "evolution",
-  "state": "in_pr",
+  "state": "planned",
   "overview": "Implement a self-monitoring mechanism that verifies system integrity and recompiles the codebase after changes to prevent regression loops.",
   "branch": "wreckit/092-recursive-evolution-the-watchdog",
   "pr_url": null,
