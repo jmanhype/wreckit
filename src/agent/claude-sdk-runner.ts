@@ -204,7 +204,7 @@ To fix this, set credentials in one of these locations (in order of precedence):
 
   For direct Anthropic API access, use ANTHROPIC_API_KEY instead.
 
-Run 'wreckit sdk-info' to diagnose your current credential configuration.
+Check your credential configuration (ANTHROPIC_API_KEY or ANTHROPIC_AUTH_TOKEN).
 `;
     return {
       success: false,

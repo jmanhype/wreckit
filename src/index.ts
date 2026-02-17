@@ -34,7 +34,6 @@ import { dreamCommand } from "./commands/dream";
 import { summarizeCommand } from "./commands/summarize";
 import { geneticistCommand } from "./commands/geneticist";
 import { checkIntegrityCommand, watchdogCommand } from "./commands/watchdog";
-// import { sdkInfoCommand } from "./commands/sdk-info";
 import { runOnboardingIfNeeded } from "./onboarding";
 import { resolveId } from "./domain/resolveId";
 import { findRepoRoot, resolveCwd } from "./fs/paths";
@@ -884,23 +883,6 @@ program
       },
     );
   });
-
-// program
-//   .command("sdk-info")
-//   .description("Display Claude SDK configuration and account info")
-//   .action(async (_options, cmd) => {
-//     const globalOpts = cmd.optsWithGlobals();
-//     await executeCommand(
-//       async () => {
-//         await sdkInfoCommand({}, logger);
-//       },
-//       logger,
-//       {
-//         verbose: globalOpts.verbose,
-//         quiet: globalOpts.quiet,
-//       }
-//     );
-//   });
 
 program
   .command("strategy")
