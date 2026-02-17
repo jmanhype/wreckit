@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "id": "054-implement-payload-size-limits-in-ideas-ingestion-s",
-  "title": "Implement payload size limits in ideas ingestion (spec 001 gap)",
+  "title": "Implement input validation and payload limits for ideas ingestion",
   "section": "roadmap",
   "state": "idea",
-  "overview": "From milestone [M2] Payload Size Limits Enforcement\n\n**Motivation:** Strategic milestone: Payload Size Limits Enforcement",
+  "overview": "From milestone [M2] Payload Size Limits Enforcement\n\n**Motivation:** Strategic milestone: Payload Size Limits Enforcement\n\nConsolidated from items 055-058: includes max 50 ideas/120 char titles/2000 char desc validation, informative error messages, README docs, and boundary condition tests.",
   "branch": null,
   "pr_url": null,
   "pr_number": null,

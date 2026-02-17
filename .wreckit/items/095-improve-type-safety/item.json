@@ -1,1 +1,14 @@
-{"schema_version":1,"id":"095-improve-type-safety","title":"Improve Type Safety","section":"technical-debt","state":"idea","overview":"Reduce excessive use of 'any' type casting (200+ instances), particularly in sprite-core.ts normalization logic and prompts.ts.","branch":null,"pr_url":null,"pr_number":null,"last_error":null,"created_at":"2026-01-28T15:00:00.000Z","updated_at":"2026-01-28T15:00:00.000Z"}
+{
+  "schema_version": 1,
+  "id": "095-improve-type-safety",
+  "title": "Improve Type Safety",
+  "section": "technical-debt",
+  "state": "idea",
+  "overview": "Reduce excessive use of 'any' type casting (200+ instances), particularly in sprite-core.ts normalization logic and prompts.ts.\n\nConsolidated from items 070, 071, 086, 088: covers unstable_v2_createSession types, config migration types, prompts.ts template types, and sprite-core.ts normalizeSprite types.",
+  "branch": null,
+  "pr_url": null,
+  "pr_number": null,
+  "last_error": null,
+  "created_at": "2026-01-28T15:00:00.000Z",
+  "updated_at": "2026-01-28T15:00:00.000Z"
+}

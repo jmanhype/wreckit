@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "id": "059-add-output-validation-layer-to-detect-command-inje",
-  "title": "Add output validation layer to detect command injection patterns",
+  "title": "Implement agent output security layer (validation, warnings, audit)",
   "section": "roadmap",
   "state": "idea",
-  "overview": "From milestone [M3] Social Engineering Prevention Hardening\n\n**Motivation:** Strategic milestone: Social Engineering Prevention Hardening",
+  "overview": "From milestone [M3] Social Engineering Prevention Hardening\n\n**Motivation:** Strategic milestone: Social Engineering Prevention Hardening\n\nConsolidated from items 060-063: includes warning system for suspicious suggestions, user education prompts, threat model docs, and audit logging.",
   "branch": null,
   "pr_url": null,
   "pr_number": null,

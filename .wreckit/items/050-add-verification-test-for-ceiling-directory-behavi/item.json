@@ -3,7 +3,7 @@
   "id": "050-add-verification-test-for-ceiling-directory-behavi",
   "title": "Add verification test for ceiling directory behavior",
   "section": "roadmap",
-  "state": "idea",
+  "state": "done",
   "overview": "From milestone [M1] Complete Git Integration Test Fix\n\n**Motivation:** Strategic milestone: Complete Git Integration Test Fix",
   "branch": null,
   "pr_url": null,
