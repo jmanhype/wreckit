@@ -154,26 +154,44 @@ Wreckit supports two merge strategies, configured via `merge_mode` in `.wreckit/
 
 ### Phase Commands (for debugging)
 
-| Command                  | Transition             |
-| ------------------------ | ---------------------- |
-| `wreckit research <id>`  | idea → researched      |
-| `wreckit plan <id>`      | researched → planned   |
-| `wreckit implement <id>` | planned → implementing |
-| `wreckit pr <id>`        | implementing → in_pr   |
-| `wreckit complete <id>`  | in_pr → done           |
+| Command                  | Transition               |
+| ------------------------ | ------------------------ |
+| `wreckit research <id>`  | idea → researched        |
+| `wreckit plan <id>`      | researched → planned     |
+| `wreckit implement <id>` | planned → implementing   |
+| `wreckit critique <id>`  | implementing → critique  |
+| `wreckit pr <id>`        | critique → in_pr         |
+| `wreckit complete <id>`  | in_pr → done             |
+
+### Utility Commands
+
+| Command                        | What It Does                                               |
+| ------------------------------ | ---------------------------------------------------------- |
+| `wreckit shell <id> <cmd...>`  | Execute a shell command on an item's branch                |
+| `wreckit summarize`            | Generate feature visualization summaries                   |
+| `wreckit execute-roadmap`      | Convert ROADMAP.md milestones into wreckit items           |
+| `wreckit check-integrity`      | Check if `dist/` is in sync with `src/`                    |
+| `wreckit watchdog`             | Watch source files and rebuild on changes                  |
 
 ### Flags
 
-| Flag        | What                                      |
-| ----------- | ----------------------------------------- |
-| `--sandbox` | Run in isolated Firecracker VM            |
-| `--verbose` | More logs                                 |
-| `--quiet`   | Errors only                               |
-| `--no-tui`  | Disable TUI (CI mode)                     |
-| `--dry-run` | Preview, don't execute                    |
-| `--force`   | Regenerate artifacts                      |
-| `--debug`   | JSON output (ndjson)                      |
-| `--cwd <path>` | Override working directory             |
+| Flag                 | What                                                        |
+| -------------------- | ----------------------------------------------------------- |
+| `--sandbox`          | Run in isolated Firecracker VM                              |
+| `--verbose`          | More logs                                                   |
+| `--quiet`            | Errors only                                                 |
+| `--no-tui`           | Disable TUI (CI mode)                                       |
+| `--dry-run`          | Preview, don't execute                                      |
+| `--force`            | Regenerate artifacts                                        |
+| `--debug`            | JSON output (ndjson)                                        |
+| `--cwd <path>`       | Override working directory                                  |
+| `--parallel <n>`     | Process N items in parallel (default: 1)                    |
+| `--no-resume`        | Start fresh batch run, ignoring saved progress              |
+| `--retry-failed`     | Include previously failed items when resuming               |
+| `--no-healing`       | Disable automatic self-healing                              |
+| `--agent <kind>`     | Override agent backend (claude_sdk, rlm, sprite, etc.)      |
+| `--rlm`              | Shorthand for `--agent rlm`                                 |
+| `--mock-agent`       | Simulate agent responses without calling the real agent     |
 
 ### Meta-Agents
 
@@ -519,9 +537,9 @@ Created 3 items:
 
 $ wreckit status
 ID                              STATE
-features/001-dark-mode-toggle   raw
-bugs/001-login-timeout          raw
-infra/001-oauth2-migration      raw
+features/001-dark-mode-toggle   idea
+bugs/001-login-timeout          idea
+infra/001-oauth2-migration      idea
 
 $ wreckit
 # TUI runs, agent researches, plans, implements...
@@ -569,8 +587,8 @@ wreckit next  # grabs the next incomplete item, runs it
   - **SDK Mode** (recommended):
     - **Direct API**: `export ANTHROPIC_API_KEY=sk-ant-...`
     - **Custom endpoint** (e.g., Zai): Set `ANTHROPIC_BASE_URL` and `ANTHROPIC_AUTH_TOKEN`
-    - Verify setup: `wreckit sdk-info`
-    - See [MIGRATION.md#environment-variables](./MIGRATION.md#environment-variables) for full details
+    - Run `wreckit doctor` to verify setup
+    - See [MIGRATION.md](./MIGRATION.md#environment-variables) for full details
   - **Process Mode**: [Amp](https://ampcode.com) or [Claude](https://claude.ai) CLI
 
 ---
