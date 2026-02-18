@@ -264,9 +264,7 @@ export async function uploadToSpriteVM(
       },
     );
 
-    // GNU tar exit code 2 means "warnings only" (e.g. unknown extended headers
-    // from macOS LIBARCHIVE.xattr.*). Treat it as success since files extract fine.
-    if (!result.success && result.exitCode !== 0 && result.exitCode !== 2) {
+    if (!result.success && result.exitCode !== 0) {
       return {
         success: false,
 
@@ -436,8 +434,7 @@ export async function downloadFromSpriteVM(
     logger,
   );
 
-  // GNU tar exit code 2 means "warnings only" — tolerate it.
-  if (!result.success && result.exitCode !== 0 && result.exitCode !== 2) {
+  if (!result.success && result.exitCode !== 0) {
     return {
       success: false,
       error: `Archive creation in VM failed: ${result.stderr}`,
