@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "096-add-integrity-checks-to-sprite-vm-sync-pulldown",
+  "title": "Add integrity checks to Sprite VM sync pulldown",
+  "state": "done",
+  "overview": "syncProjectFromVM() in src/fs/sync.ts blindly overwrites host project files with whatever the VM archive contains. When VM extraction fails silently (e.g., tar exit code 2 producing null-byte files), the pulldown overwrites the host's good files with corrupt data, requiring manual git recovery.\n\n**Motivation:** A dogfood run (2026-02-18) caused full project corruption when the VM had null-byte files from a failed tar extraction. syncProjectFromVM pulled a 596KB archive for a 68MB project and silently overwrote everything. Only git checkout -- . saved the project.\n\n**Success criteria:**\n- Archive size sanity check: reject VM archives dramatically smaller than the upload archive\n- Spot-check at least one known file for non-null/non-empty content before overwriting\n- Log clear warnings when integrity checks fail\n- Never overwrite host files when integrity checks fail\n- Add tests for integrity check scenarios\n\n**Technical constraints:**\n- Must not add significant latency to the sync pulldown path\n- Should work with any project size (can't hardcode thresholds)\n- The upload archive size should be stored/passed for comparison\n- Must maintain backward compatibility with existing sync callers\n\n**In scope:**\n- src/fs/sync.ts: downloadFromSpriteVM, extractProjectArchive, syncProjectFromVM\n- Archive size comparison logic\n- File content spot-checking\n- Tests for corrupt archive detection\n**Out of scope:**\n- Fixing the root cause of tar exit code 2 on Sprite VMs (separate issue)\n- Changes to the archive creation or upload paths\n- VM filesystem debugging\n\n**Signals:** priority: high, urgency: Data safety - prevents silent project corruption",
+  "branch": null,
+  "pr_url": null,
+  "pr_number": null,
+  "last_error": null,
+  "created_at": "2026-02-18T13:45:00.000Z",
+  "updated_at": "2026-02-18T13:45:00.000Z",
+  "problem_statement": "syncProjectFromVM() blindly overwrites host project files with VM archive contents. When VM extraction fails silently (tar exit code 2, null-byte files), the pulldown corrupts the entire host project.",
+  "motivation": "A dogfood run caused full project corruption when the VM had null-byte files. Only git checkout -- . saved the project. This is a data safety issue.",
+  "success_criteria": [
+    "Archive size sanity check: reject VM archives dramatically smaller than upload",
+    "Spot-check known file for non-null content before overwriting",
+    "Log clear warnings when integrity checks fail",
+    "Never overwrite host files when checks fail",
+    "Add tests for corrupt archive detection"
+  ],
+  "technical_constraints": [
+    "Must not add significant latency to sync pulldown",
+    "Should work with any project size",
+    "Upload archive size should be stored for comparison",
+    "Maintain backward compatibility with existing callers"
+  ],
+  "scope_in_scope": [
+    "src/fs/sync.ts: downloadFromSpriteVM, extractProjectArchive, syncProjectFromVM",
+    "Archive size comparison logic",
+    "File content spot-checking",
+    "Tests for corrupt archive detection"
+  ],
+  "scope_out_of_scope": [
+    "Fixing root cause of tar exit code 2 on Sprite VMs",
+    "Changes to archive creation or upload paths",
+    "VM filesystem debugging"
+  ],
+  "priority_hint": "high",
+  "urgency_hint": "Data safety - prevents silent project corruption"
+}

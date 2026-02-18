@@ -300,7 +300,7 @@ export async function syncProjectToVM(
   projectRoot: string,
   config: SpriteAgentConfig,
   logger: Logger,
-): Promise<boolean> {
+): Promise<{ success: boolean; uploadArchiveSize?: number }> {
   // Check if sync is enabled in config (default true if not specified)
   // Assuming optional config field for now
   // if (config.syncEnabled === false) return true;
@@ -392,7 +392,7 @@ export async function syncProjectToVM(
       // Don't fail the whole sync if git init fails
     }
 
-    return true;
+    return { success: true, uploadArchiveSize: archiveResult.archiveSize };
   } finally {
     // Clean up local archive
     if (archiveResult.archivePath) {
@@ -560,8 +560,64 @@ export async function extractProjectArchive(
 }
 
 /**
+ * Minimum ratio of download archive size to upload archive size.
+ * If the VM archive is less than 1% of the upload, files are likely corrupt.
+ */
+const MIN_ARCHIVE_SIZE_RATIO = 0.01;
+
+/**
+ * Verify extracted files are not corrupt (null bytes) by spot-checking
+ * a known source file. Returns true if files look valid.
+ */
+export async function verifyExtractedFiles(
+  extractedPath: string,
+  logger: Logger,
+): Promise<boolean> {
+  // Look for a known source file to spot-check
+  const candidates = [
+    "src/index.ts",
+    "package.json",
+    "tsconfig.json",
+    "README.md",
+  ];
+
+  for (const candidate of candidates) {
+    const filePath = path.join(extractedPath, candidate);
+    try {
+      const content = await fs.readFile(filePath);
+      if (content.length === 0) {
+        logger.warn(`Integrity check: ${candidate} is empty`);
+        return false;
+      }
+      // Check for null-byte corruption: if >50% of first 1KB is null bytes, it's corrupt
+      const sample = content.subarray(0, Math.min(1024, content.length));
+      let nullCount = 0;
+      for (let i = 0; i < sample.length; i++) {
+        if (sample[i] === 0) nullCount++;
+      }
+      if (nullCount > sample.length * 0.5) {
+        logger.warn(
+          `Integrity check: ${candidate} is ${Math.round((nullCount / sample.length) * 100)}% null bytes — corrupt`,
+        );
+        return false;
+      }
+      logger.debug(`Integrity check: ${candidate} looks valid (${content.length} bytes)`);
+      return true;
+    } catch {
+      // File doesn't exist, try next candidate
+      continue;
+    }
+  }
+
+  // No candidates found — can't verify, allow with warning
+  logger.warn("Integrity check: no known files found to verify, proceeding anyway");
+  return true;
+}
+
+/**
  * Synchronize files from Sprite VM back to host machine.
  * Creates archive in VM, downloads it, extracts to project directory.
+ * Includes integrity checks to prevent overwriting host with corrupt data.
  * This is the mirror operation of syncProjectToVM().
  */
 export async function syncProjectFromVM(
@@ -569,6 +625,7 @@ export async function syncProjectFromVM(
   projectRoot: string,
   config: SpriteAgentConfig,
   logger: Logger,
+  options?: { uploadArchiveSize?: number },
 ): Promise<boolean> {
   logger.info(`Pulling files from Sprite VM '${vmName}'...`);
 
@@ -589,21 +646,77 @@ export async function syncProjectFromVM(
 
   logger.info(`Downloaded archive: ${downloadResult.archiveSize} bytes`);
 
-  const extractResult = await extractProjectArchive({
-    archiveBuffer: downloadResult.archiveBuffer!,
-    projectRoot,
-    logger,
-  });
-
-  if (!extractResult.success) {
-    logger.error(`Failed to extract archive: ${extractResult.error}`);
-    throw new SpriteSyncError(
-      "extract",
-      projectRoot,
-      extractResult.error || "Unknown error",
+  // Integrity check 1: Archive size ratio
+  const uploadSize = options?.uploadArchiveSize;
+  if (uploadSize && downloadResult.archiveSize) {
+    const ratio = downloadResult.archiveSize / uploadSize;
+    if (ratio < MIN_ARCHIVE_SIZE_RATIO) {
+      const msg =
+        `VM archive (${downloadResult.archiveSize} bytes) is ${(ratio * 100).toFixed(2)}% ` +
+        `of upload archive (${uploadSize} bytes) — likely corrupt`;
+      logger.error(`Integrity check failed: ${msg}`);
+      throw new SpriteSyncError("integrity", projectRoot, msg);
+    }
+    logger.debug(
+      `Archive size ratio: ${(ratio * 100).toFixed(1)}% (${downloadResult.archiveSize}/${uploadSize})`,
     );
   }
 
-  logger.info(`Files pulled to ${extractResult.extractedPath}`);
-  return true;
+  // Extract to temp directory first for integrity verification
+  const tempExtractDir = await fs.mkdtemp(
+    path.join(os.tmpdir(), "wreckit-sync-verify-"),
+  );
+
+  try {
+    const extractResult = await extractProjectArchive({
+      archiveBuffer: downloadResult.archiveBuffer!,
+      projectRoot: tempExtractDir,
+      logger,
+    });
+
+    if (!extractResult.success) {
+      logger.error(`Failed to extract archive: ${extractResult.error}`);
+      throw new SpriteSyncError(
+        "extract",
+        projectRoot,
+        extractResult.error || "Unknown error",
+      );
+    }
+
+    // Integrity check 2: Spot-check file content for null-byte corruption
+    const isValid = await verifyExtractedFiles(tempExtractDir, logger);
+    if (!isValid) {
+      const msg =
+        "Extracted files contain null bytes or are empty — VM data is corrupt. " +
+        "Host files were NOT overwritten.";
+      logger.error(`Integrity check failed: ${msg}`);
+      throw new SpriteSyncError("integrity", projectRoot, msg);
+    }
+
+    // Integrity checks passed — now extract to actual project directory
+    const finalResult = await extractProjectArchive({
+      archiveBuffer: downloadResult.archiveBuffer!,
+      projectRoot,
+      logger,
+    });
+
+    if (!finalResult.success) {
+      logger.error(`Failed to extract to project: ${finalResult.error}`);
+      throw new SpriteSyncError(
+        "extract",
+        projectRoot,
+        finalResult.error || "Unknown error",
+      );
+    }
+
+    logger.info(`Files pulled to ${finalResult.extractedPath}`);
+    return true;
+  } finally {
+    // Clean up temp extraction directory
+    try {
+      await fs.rm(tempExtractDir, { recursive: true, force: true });
+    } catch {
+      // Best effort cleanup
+    }
+  }
 }

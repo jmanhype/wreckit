@@ -213,7 +213,7 @@ export async function runSpriteAgent(
     await new Promise((resolve) => setTimeout(resolve, 5000));
     logger.info("Synchronizing project to Sprite VM...");
     const projectRoot = findRepoRoot(cwd);
-    await syncProjectToVM(vmName, projectRoot, config, logger);
+    const syncResult = await syncProjectToVM(vmName, projectRoot, config, logger);
 
     // 3. Build Environment & Tools
     const env = await buildSdkEnv({ cwd, logger });
@@ -429,7 +429,9 @@ When you are finished, summarize your work and stop.`,
       logger.info("Agent completed, pulling changes from VM...");
       try {
         const { syncProjectFromVM } = await import("../fs/sync.js");
-        await syncProjectFromVM(vmName, findRepoRoot(cwd), config, logger);
+        await syncProjectFromVM(vmName, findRepoRoot(cwd), config, logger, {
+          uploadArchiveSize: syncResult.uploadArchiveSize,
+        });
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : String(err);
         logger.error(`Failed to pull changes from VM: ${errorMsg}`);

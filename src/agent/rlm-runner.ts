@@ -238,6 +238,7 @@ export async function runRlmAgent(
     `);
 
     let executor: Executor = defaultLocalExecutor;
+    let uploadArchiveSize: number | undefined;
 
     if (config.sandbox) {
       vmName = `wreckit-rlm-sandbox-${Date.now()}`;
@@ -258,7 +259,8 @@ export async function runRlmAgent(
 
       logger.info("Synchronizing project to RLM Sandbox...");
       const projectRoot = findRepoRoot(cwd);
-      await syncProjectToVM(vmName, projectRoot, spriteConfig as any, logger);
+      const syncResult = await syncProjectToVM(vmName, projectRoot, spriteConfig as any, logger);
+      uploadArchiveSize = syncResult.uploadArchiveSize;
 
       executor = async (command: string) => {
         const remoteCwd = "/home/user/project";
@@ -505,7 +507,9 @@ IMPORTANT INSTRUCTIONS:
       logger.info("Agent completed successfully, pulling changes from VM...");
       try {
         const projectRoot = findRepoRoot(cwd);
-        await syncProjectFromVM(vmName, projectRoot, config as any, logger);
+        await syncProjectFromVM(vmName, projectRoot, config as any, logger, {
+          uploadArchiveSize,
+        });
         logger.info("Changes pulled from VM successfully");
       } catch (err) {
         const msg = `Error pulling changes from VM: ${(err as Error).message}`;
