@@ -1,5 +1,5 @@
 import type { Prd, WorkflowState } from "../schemas";
-import { getAllowedNextStates } from "./states";
+import { getAllowedNextStates, type PhaseName } from "./states";
 import type { ParsedIdea } from "./ideas";
 
 export interface ValidationContext {
@@ -97,8 +97,9 @@ export function validateTransition(
   current: WorkflowState,
   target: WorkflowState,
   ctx: ValidationContext,
+  skipPhases: PhaseName[] = [],
 ): ValidationResult {
-  const allowed = getAllowedNextStates(current);
+  const allowed = getAllowedNextStates(current, skipPhases);
   if (!allowed.includes(target)) {
     return {
       valid: false,

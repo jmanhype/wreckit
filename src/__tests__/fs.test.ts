@@ -273,6 +273,7 @@ describe("Typed wrapper tests", () => {
     },
     max_iterations: 100,
     timeout_seconds: 3600,
+    skip_phases: [],
   };
 
   const validItem: Item = {

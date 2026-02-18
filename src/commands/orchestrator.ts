@@ -266,7 +266,17 @@ export async function orchestrateAll(
         logger.info(`Item ${item.id} is blocked by: ${blockedBy.join(", ")}`);
       }
 
-      dryRunInfos.push({ item: fullItem, prd, hasResearch, hasPlan, config });
+      const itemSkipPhases = (fullItem.skip_phases ??
+        config.skip_phases ??
+        []) as import("../domain/states").PhaseName[];
+      dryRunInfos.push({
+        item: fullItem,
+        prd,
+        hasResearch,
+        hasPlan,
+        config,
+        skipPhases: itemSkipPhases,
+      });
     }
     formatDryRunSummary(dryRunInfos, logger);
     result.remaining = nonDoneItems.map((item) => item.id);
@@ -638,8 +648,11 @@ export async function orchestrateNext(
     const itemDir = getItemDir(root, nextItemId);
     const item = await readItem(itemDir);
     const { getNextPhase } = await import("../workflow");
-    const nextPhase = getNextPhase(item);
-    formatDryRunRun(item, nextPhase || "unknown", config, logger);
+    const skipPhases = (item.skip_phases ??
+      config.skip_phases ??
+      []) as import("../domain/states").PhaseName[];
+    const nextPhase = getNextPhase(item, skipPhases);
+    formatDryRunRun(item, nextPhase || "unknown", config, logger, skipPhases);
     return { itemId: nextItemId, success: true };
   }
 

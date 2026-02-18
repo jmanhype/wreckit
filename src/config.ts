@@ -39,6 +39,7 @@ export interface ConfigResolved {
   agent: AgentConfigUnion;
   max_iterations: number;
   timeout_seconds: number;
+  skip_phases: string[];
   pr_checks: PrChecksResolved;
   branch_cleanup: BranchCleanupResolved;
   // Add optional skills (Item 033)
@@ -76,6 +77,7 @@ export const DEFAULT_CONFIG: ConfigResolved = {
   },
   max_iterations: 100,
   timeout_seconds: 3600,
+  skip_phases: [],
   pr_checks: {
     commands: [],
     secret_scan: false,
@@ -168,6 +170,7 @@ export function mergeWithDefaults(partial: Partial<Config>): ConfigResolved {
     agent,
     max_iterations: partial.max_iterations ?? DEFAULT_CONFIG.max_iterations,
     timeout_seconds: partial.timeout_seconds ?? DEFAULT_CONFIG.timeout_seconds,
+    skip_phases: partial.skip_phases ?? DEFAULT_CONFIG.skip_phases,
     pr_checks: prChecks,
     branch_cleanup: branchCleanup,
     skills: partial.skills, // Add optional skills (Item 033)
@@ -297,13 +300,14 @@ export function applyOverrides(
     agent,
     max_iterations: overrides.maxIterations ?? config.max_iterations,
     timeout_seconds: overrides.timeoutSeconds ?? config.timeout_seconds,
+    skip_phases: config.skip_phases,
     pr_checks: config.pr_checks,
     branch_cleanup: config.branch_cleanup,
     skills: config.skills,
     doctor: config.doctor,
     story_scope: config.story_scope,
-    compute: config.compute, // Add (Item 001)
-    limits: config.limits, // Add (Item 001)
+    compute: config.compute,
+    limits: config.limits,
   };
 }
 

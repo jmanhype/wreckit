@@ -15,6 +15,11 @@ import {
   type WorkflowOptions,
 } from "../workflow";
 import { formatDryRunPhase } from "./dryRunFormatter";
+import {
+  PHASE_REGISTRY,
+  WORKFLOW_STATES,
+  type PhaseName,
+} from "../domain/states";
 
 export type Phase =
   | "research"
@@ -31,64 +36,53 @@ export interface PhaseOptions {
   sandbox?: boolean;
 }
 
-/**
- * Configuration mapping phases to their required and target states.
- *
- * Each phase specifies:
- * - requiredState: The state(s) an item must be in to run this phase
- * - targetState: The state the item will be in after successful phase completion
- * - skipIfInTarget: Whether to skip execution if already in target state
- * - runFn: The workflow function that implements the phase
- *
- * NOTE: Phase names and state mappings have a bidirectional relationship with getNextPhase() in
- * src/workflow/itemWorkflow.ts:607-626. Changes here may require updates there.
- */
-const PHASE_CONFIG: Record<
+const PHASE_RUNNERS: Record<
   Phase,
-  {
-    requiredState: WorkflowState | WorkflowState[];
-    targetState: WorkflowState;
-    skipIfInTarget: boolean;
-    runFn: (itemId: string, options: WorkflowOptions) => Promise<PhaseResult>;
-  }
+  (itemId: string, options: WorkflowOptions) => Promise<PhaseResult>
 > = {
-  research: {
-    requiredState: "idea",
-    targetState: "researched",
-    skipIfInTarget: true,
-    runFn: runPhaseResearch,
-  },
-  plan: {
-    requiredState: "researched",
-    targetState: "planned",
-    skipIfInTarget: true,
-    runFn: runPhasePlan,
-  },
-  implement: {
-    requiredState: ["planned", "implementing"],
-    targetState: "implementing",
-    skipIfInTarget: false,
-    runFn: runPhaseImplement,
-  },
-  critique: {
-    requiredState: ["implementing", "critique"],
-    targetState: "critique",
-    skipIfInTarget: true,
-    runFn: runPhaseCritique,
-  },
-  pr: {
-    requiredState: "critique",
-    targetState: "in_pr",
-    skipIfInTarget: true,
-    runFn: runPhasePr,
-  },
-  complete: {
-    requiredState: "in_pr",
-    targetState: "done",
-    skipIfInTarget: true,
-    runFn: runPhaseComplete,
-  },
+  research: runPhaseResearch,
+  plan: runPhasePlan,
+  implement: runPhaseImplement,
+  critique: runPhaseCritique,
+  pr: runPhasePr,
+  complete: runPhaseComplete,
 };
+
+/**
+ * Configuration derived from PHASE_REGISTRY (single source of truth).
+ */
+function getPhaseConfig(phase: Phase): {
+  requiredState: WorkflowState | WorkflowState[];
+  targetState: WorkflowState;
+  skipIfInTarget: boolean;
+} {
+  const spec = PHASE_REGISTRY.find((p) => p.name === phase);
+  if (!spec) {
+    throw new WreckitError(`Unknown phase: ${phase}`, "INVALID_STATE");
+  }
+
+  // implement and critique accept being re-entered from their own state
+  if (phase === "implement") {
+    return {
+      requiredState: [spec.fromState, spec.toState],
+      targetState: spec.toState,
+      skipIfInTarget: false,
+    };
+  }
+  if (phase === "critique") {
+    return {
+      requiredState: [spec.fromState, spec.toState],
+      targetState: spec.toState,
+      skipIfInTarget: true,
+    };
+  }
+
+  return {
+    requiredState: spec.fromState,
+    targetState: spec.toState,
+    skipIfInTarget: true,
+  };
+}
 
 function isInRequiredState(
   currentState: WorkflowState,
@@ -110,35 +104,15 @@ function isInTargetState(
 /**
  * Validates whether a phase transition would be invalid.
  *
- * A transition is invalid if:
- * 1. The current state is "done" (terminal) and phase is not "complete"
- * 2. The current state index is greater than the target state index (backward transition)
- *
- * Uses a local stateOrder array - must stay synchronized with WORKFLOW_STATES in src/domain/states.ts:3-10
- *
- * @param phase - The phase being executed
- * @param currentState - The item's current workflow state
- * @returns true if the transition should be blocked
+ * Uses WORKFLOW_STATES from the single source of truth (PHASE_REGISTRY-derived).
  */
 function isInvalidTransition(
   phase: Phase,
   currentState: WorkflowState,
 ): boolean {
-  const config = PHASE_CONFIG[phase];
-  // IMPORTANT: This array MUST match WORKFLOW_STATES in src/domain/states.ts:3-10
-  // This is a local duplicate for encapsulation - update both locations if state ordering changes
-  const stateOrder: WorkflowState[] = [
-    "idea",
-    "researched",
-    "planned",
-    "implementing",
-    "critique",
-    "in_pr",
-    "done",
-  ];
-
-  const currentIndex = stateOrder.indexOf(currentState);
-  const targetIndex = stateOrder.indexOf(config.targetState);
+  const config = getPhaseConfig(phase);
+  const currentIndex = WORKFLOW_STATES.indexOf(currentState);
+  const targetIndex = WORKFLOW_STATES.indexOf(config.targetState);
 
   if (currentState === "done" && phase !== "complete") {
     return true;
@@ -173,7 +147,7 @@ export async function runPhaseCommand(
     throw err;
   }
 
-  const phaseConfig = PHASE_CONFIG[phase];
+  const phaseConfig = getPhaseConfig(phase);
 
   if (isInvalidTransition(phase, item.state)) {
     throw new WreckitError(
@@ -220,7 +194,8 @@ export async function runPhaseCommand(
     dryRun,
   };
 
-  const result = await phaseConfig.runFn(itemId, workflowOptions);
+  const runner = PHASE_RUNNERS[phase];
+  const result = await runner(itemId, workflowOptions);
 
   if (result.success) {
     console.log(

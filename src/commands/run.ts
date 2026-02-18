@@ -11,7 +11,7 @@ import {
   getPrdPath,
 } from "../fs/paths";
 import { pathExists } from "../fs/util";
-import { readItem } from "../fs/json";
+import { readItem, writeItem } from "../fs/json";
 import { loadConfig } from "../config";
 import { FileNotFoundError, WreckitError, isWreckitError } from "../errors";
 import {
@@ -25,6 +25,11 @@ import {
   type WorkflowOptions,
 } from "../workflow";
 import { formatDryRunRun } from "./dryRunFormatter";
+import {
+  getPhaseEntryState,
+  getPhaseSpec,
+  type PhaseName,
+} from "../domain/states";
 
 export interface RunOptions {
   force?: boolean;
@@ -65,6 +70,18 @@ async function phaseArtifactsExist(
   }
 }
 
+/**
+ * Resolve the effective skip_phases for an item.
+ * Per-item skip_phases override the global config.
+ */
+function resolveSkipPhases(
+  item: Item,
+  configSkipPhases: string[],
+): PhaseName[] {
+  const phases = item.skip_phases ?? configSkipPhases;
+  return phases as PhaseName[];
+}
+
 export async function runCommand(
   itemId: string,
   options: RunOptions,
@@ -103,6 +120,11 @@ export async function runCommand(
     return;
   }
 
+  const skipPhases = resolveSkipPhases(item, config.skip_phases);
+  if (skipPhases.length > 0) {
+    logger.info(`Skipping phases: ${skipPhases.join(", ")}`);
+  }
+
   const workflowOptions: WorkflowOptions = {
     root,
     config,
@@ -118,7 +140,10 @@ export async function runCommand(
     noHealing, // Pass through healing flag
   };
 
-  const phaseRunners = {
+  const phaseRunners: Record<
+    PhaseName,
+    (id: string, opts: WorkflowOptions) => ReturnType<typeof runPhaseResearch>
+  > = {
     research: runPhaseResearch,
     plan: runPhasePlan,
     implement: runPhaseImplement,
@@ -135,12 +160,28 @@ export async function runCommand(
       return;
     }
 
-    const nextPhase = getNextPhase(item);
+    const nextPhase = getNextPhase(item, skipPhases);
     if (!nextPhase) {
       logger.info(
         `Item ${itemId} is in state '${item.state}' with no next phase`,
       );
       return;
+    }
+
+    // Auto-advance: if phases were skipped, the item may need to fast-forward
+    // to the entry state of the next real phase.
+    const entryState = getPhaseEntryState(item.state, nextPhase);
+    if (item.state !== entryState) {
+      logger.info(
+        `Fast-forwarding ${itemId}: ${item.state} → ${entryState} (skipped phases)`,
+      );
+      const advanced: Item = {
+        ...item,
+        state: entryState,
+        updated_at: new Date().toISOString(),
+      };
+      await writeItem(itemDir, advanced);
+      item = advanced;
     }
 
     if (!force && (await phaseArtifactsExist(nextPhase, root, itemId))) {
@@ -166,22 +207,15 @@ export async function runCommand(
     }
 
     if (dryRun) {
-      formatDryRunRun(item, nextPhase, config, logger);
+      formatDryRunRun(item, nextPhase, config, logger, skipPhases);
       return;
     }
 
     logger.info(`Running ${nextPhase} phase on ${itemId}`);
 
     // Map phase names to workflow states for TUI display
-    const phaseToState: Record<string, string> = {
-      research: "researched",
-      plan: "planned",
-      implement: "implementing",
-      critique: "critique",
-      pr: "in_pr",
-      complete: "done",
-    };
-    onPhaseChanged?.(phaseToState[nextPhase] ?? nextPhase);
+    const spec = getPhaseSpec(nextPhase);
+    onPhaseChanged?.(spec?.toState ?? nextPhase);
 
     const runner = phaseRunners[nextPhase];
     const result = await runner(itemId, workflowOptions);

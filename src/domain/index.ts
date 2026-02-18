@@ -1,7 +1,16 @@
 export {
   WORKFLOW_STATES,
+  PHASE_REGISTRY,
+  SKIPPABLE_PHASES,
+  type PhaseName,
+  type PhaseSpec,
   getNextState,
   getAllowedNextStates,
+  getEffectiveStates,
+  getNextPhaseFromState,
+  getPhaseEntryState,
+  getPhaseSpec,
+  validateSkipPhases,
   isTerminalState,
   getStateIndex,
 } from "./states";

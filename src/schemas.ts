@@ -332,6 +332,13 @@ export const StoryScopeConfigSchema = z
   })
   .strict();
 
+export const SkippablePhaseSchema = z.enum([
+  "research",
+  "plan",
+  "critique",
+  "pr",
+]);
+
 export const ConfigSchema = z.object({
   schema_version: z.number().default(1),
   base_branch: z.string().default("main"),
@@ -341,6 +348,8 @@ export const ConfigSchema = z.object({
   agent: z.union([LegacyAgentConfigSchema, AgentConfigUnionSchema]),
   max_iterations: z.number().default(100),
   timeout_seconds: z.number().default(3600),
+  // Phases to skip globally (e.g., ["critique"] for fast prototyping)
+  skip_phases: z.array(SkippablePhaseSchema).default([]),
   pr_checks: PrChecksSchema.optional(),
   branch_cleanup: BranchCleanupSchema.optional(),
   // Add optional skills configuration (Item 033)
@@ -392,6 +401,9 @@ export const ItemSchema = z.object({
   // Dependency management and campaign grouping (Item 022)
   depends_on: z.array(z.string()).optional(),
   campaign: z.string().optional(),
+
+  // Per-item phase topology override (Discussion #63)
+  skip_phases: z.array(SkippablePhaseSchema).optional(),
 });
 
 export const StorySchema = z.object({

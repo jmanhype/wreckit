@@ -181,6 +181,7 @@ function createTestConfig(): ConfigResolved {
     max_iterations: 10,
     timeout_seconds: 60,
     merge_mode: "pr",
+    skip_phases: [],
     pr_checks: {
       commands: [],
       secret_scan: false,

@@ -1,7 +1,8 @@
 import type { Logger } from "../logging";
-import type { Item, Prd } from "../schemas";
+import type { Item, Prd, WorkflowState } from "../schemas";
 import type { ConfigResolved } from "../config";
 import { getNextPhase } from "../workflow";
+import { PHASE_REGISTRY, type PhaseName } from "../domain/states";
 
 export interface DryRunItemInfo {
   item: Item;
@@ -9,28 +10,32 @@ export interface DryRunItemInfo {
   hasResearch: boolean;
   hasPlan: boolean;
   config: ConfigResolved;
+  skipPhases?: PhaseName[];
 }
 
 const PHASE_DESCRIPTIONS: Record<string, string> = {
   research: "Gather context and requirements from codebase",
   plan: "Create implementation plan and user stories (prd.json)",
   implement: "Execute user stories with AI agent",
+  critique: "Review implementation quality and suggest fixes",
   pr: "Create/update pull request with changes",
   complete: "Mark item as done after PR merge",
 };
 
-function getPhaseSequence(currentState: string): string[] {
-  const allPhases = ["research", "plan", "implement", "pr", "complete"];
-  const stateToPhaseIndex: Record<string, number> = {
-    idea: 0,
-    researched: 1,
-    planned: 2,
-    implementing: 3,
-    in_pr: 4,
-    done: 5,
-  };
-  const startIndex = stateToPhaseIndex[currentState] ?? 0;
-  return allPhases.slice(startIndex);
+function getPhaseSequence(
+  currentState: WorkflowState,
+  skipPhases: PhaseName[] = [],
+): PhaseName[] {
+  const allPhases = PHASE_REGISTRY.map((p) => p.name);
+  const stateIndex = PHASE_REGISTRY.findIndex(
+    (p) => p.fromState === currentState || p.toState === currentState,
+  );
+  const startIndex = Math.max(
+    0,
+    PHASE_REGISTRY.findIndex((p) => p.fromState === currentState),
+  );
+  const remaining = allPhases.slice(startIndex >= 0 ? startIndex : 0);
+  return remaining.filter((p) => !skipPhases.includes(p));
 }
 
 function formatBranchName(config: ConfigResolved, itemId: string): string {
@@ -38,8 +43,8 @@ function formatBranchName(config: ConfigResolved, itemId: string): string {
 }
 
 export function formatDryRunItem(info: DryRunItemInfo, logger: Logger): void {
-  const { item, prd, hasResearch, hasPlan, config } = info;
-  const nextPhase = getNextPhase(item);
+  const { item, prd, hasResearch, hasPlan, config, skipPhases = [] } = info;
+  const nextPhase = getNextPhase(item, skipPhases);
   const branchName = formatBranchName(config, item.id);
 
   logger.info("");
@@ -66,9 +71,14 @@ export function formatDryRunItem(info: DryRunItemInfo, logger: Logger): void {
     );
   }
 
+  if (skipPhases.length > 0) {
+    logger.info("");
+    logger.info(`  Skipping:    ${skipPhases.join(", ")}`);
+  }
+
   logger.info("");
   logger.info("  Would Execute:");
-  const phases = getPhaseSequence(item.state);
+  const phases = getPhaseSequence(item.state, skipPhases);
   for (const phase of phases) {
     const desc = PHASE_DESCRIPTIONS[phase] || phase;
     const marker = phase === nextPhase ? "→" : " ";
@@ -155,9 +165,10 @@ export function formatDryRunRun(
   nextPhase: string,
   config: ConfigResolved,
   logger: Logger,
+  skipPhases: PhaseName[] = [],
 ): void {
   const branchName = formatBranchName(config, item.id);
-  const phases = getPhaseSequence(item.state);
+  const phases = getPhaseSequence(item.state, skipPhases);
 
   logger.info("");
   logger.info(`━━━ DRY RUN: run ${item.id} ━━━`);

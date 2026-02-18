@@ -1,7 +1,7 @@
 import type { Item } from "../schemas";
 import type { ValidationContext } from "./validation";
 import { validateTransition } from "./validation";
-import { getNextState } from "./states";
+import { getNextState, type PhaseName } from "./states";
 
 export interface TransitionResult {
   nextItem: Item;
@@ -23,14 +23,15 @@ export interface TransitionError {
 export function applyStateTransition(
   item: Readonly<Item>,
   ctx: ValidationContext,
+  skipPhases: PhaseName[] = [],
 ): TransitionResult | TransitionError {
-  const nextState = getNextState(item.state);
+  const nextState = getNextState(item.state, skipPhases);
 
   if (nextState === null) {
     return { error: `Cannot transition from terminal state: ${item.state}` };
   }
 
-  const validation = validateTransition(item.state, nextState, ctx);
+  const validation = validateTransition(item.state, nextState, ctx, skipPhases);
   if (!validation.valid) {
     return { error: validation.reason ?? "Transition validation failed" };
   }

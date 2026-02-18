@@ -75,6 +75,7 @@ describe("loadConfig", () => {
       max_iterations: 50,
       timeout_seconds: 1800,
       merge_mode: "pr",
+      skip_phases: [],
       pr_checks: {
         commands: [],
         secret_scan: false,

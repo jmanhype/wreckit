@@ -44,6 +44,7 @@ describe("getAgentConfigUnion", () => {
       max_iterations: 100,
       timeout_seconds: 3600,
       merge_mode: "pr",
+      skip_phases: [],
       pr_checks: {
         commands: [],
         secret_scan: false,
@@ -91,6 +92,7 @@ describe("getAgentConfigUnion", () => {
       max_iterations: 50,
       timeout_seconds: 1800,
       merge_mode: "pr",
+      skip_phases: [],
       pr_checks: {
         commands: [],
         secret_scan: false,
@@ -392,6 +394,7 @@ describe("getAgentConfigUnion - claude_sdk kind", () => {
       max_iterations: 100,
       timeout_seconds: 3600,
       merge_mode: "pr",
+      skip_phases: [],
       pr_checks: {
         commands: [],
         secret_scan: false,

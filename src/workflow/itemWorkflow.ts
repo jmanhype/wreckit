@@ -23,7 +23,11 @@ import {
   InvalidJsonError,
   SchemaValidationError,
 } from "../errors";
-import { getNextState } from "../domain/states";
+import {
+  getNextState,
+  getNextPhaseFromState,
+  type PhaseName,
+} from "../domain/states";
 import {
   getItemDir,
   getResearchPath,
@@ -1688,40 +1692,17 @@ export async function runPhaseComplete(
 /**
  * Determines the next phase to execute based on an item's current state.
  *
- * This function encodes the workflow progression from states to phases. The mapping is:
- * - raw → research
- * - researched → plan
- * - planned → implement
- * - implementing → pr
- * - in_pr → complete
- * - done → null (terminal)
- *
- * IMPORTANT: This logic must stay synchronized with:
- * - src/domain/states.ts:3-10 (WORKFLOW_STATES array - defines state ordering)
- * - src/commands/phase.ts:26-65 (PHASE_CONFIG - defines phases and their target states)
+ * Delegates to getNextPhaseFromState() in src/domain/states.ts which uses
+ * PHASE_REGISTRY as the single source of truth for phase ordering.
+ * Supports skip_phases to skip phases from config or per-item override.
  *
  * @param item - The item to evaluate
+ * @param skipPhases - Phases to skip (from config or per-item override)
  * @returns The next phase name, or null if the workflow is complete
  */
 export function getNextPhase(
-  item: Item,
-): "research" | "plan" | "implement" | "critique" | "pr" | "complete" | null {
-  switch (item.state) {
-    case "idea":
-      return "research";
-    case "researched":
-      return "plan";
-    case "planned":
-      return "implement";
-    case "implementing":
-      return "critique";
-    case "critique":
-      return "pr";
-    case "in_pr":
-      return "complete";
-    case "done":
-      return null;
-    default:
-      return null;
-  }
+  item: Pick<Item, "state">,
+  skipPhases: PhaseName[] = [],
+): PhaseName | null {
+  return getNextPhaseFromState(item.state, skipPhases);
 }
