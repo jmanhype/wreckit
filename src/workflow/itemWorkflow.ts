@@ -758,10 +758,34 @@ export async function runPhaseImplement(
 
   let prd = await loadPrdSafe(itemDir);
   if (!prd) {
-    const error = "prd.json not found or invalid";
-    item = { ...item, last_error: error };
-    await saveItem(root, item);
-    return { success: false, item, error };
+    // When plan phase was skipped, synthesize a minimal PRD from item overview
+    const skipPhases = item.skip_phases ?? config.skip_phases;
+    if (skipPhases.includes("plan")) {
+      logger.info(
+        `Plan phase skipped — synthesizing PRD from item overview for ${itemId}`,
+      );
+      prd = {
+        schema_version: 1,
+        id: item.id,
+        branch_name: item.branch || `wreckit/${item.id}`,
+        user_stories: [
+          {
+            id: "S1",
+            title: item.title,
+            acceptance_criteria: [item.overview],
+            priority: 1,
+            status: "pending",
+            notes: "Auto-generated from item overview (plan phase skipped)",
+          },
+        ],
+      };
+      await writePrd(itemDir, prd);
+    } else {
+      const error = "prd.json not found or invalid";
+      item = { ...item, last_error: error };
+      await saveItem(root, item);
+      return { success: false, item, error };
+    }
   }
 
   if (allStoriesDone(prd)) {
