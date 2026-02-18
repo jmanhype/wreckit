@@ -147,11 +147,16 @@ export async function createProjectArchive(
 
   const excludeArgs = excludePatterns.flatMap((p) => ["--exclude", p]);
 
+  // On macOS, --no-mac-metadata prevents LIBARCHIVE.xattr.* extended headers
+  // that cause GNU tar on Linux VMs to emit warnings and exit non-zero.
+  const platform = process.platform;
+  const macArgs = platform === "darwin" ? ["--no-mac-metadata"] : [];
+
   return new Promise((resolve) => {
     // tar czf .wreckit/project-sync.tar.gz --exclude ... -C projectRoot .
     const tar = spawn(
       "tar",
-      ["czf", archivePath, ...excludeArgs, "-C", projectRoot, "."],
+      ["czf", archivePath, ...macArgs, ...excludeArgs, "-C", projectRoot, "."],
       {
         env: { ...process.env, COPYFILE_DISABLE: "1" },
         stdio: ["ignore", "pipe", "pipe"],
@@ -259,7 +264,9 @@ export async function uploadToSpriteVM(
       },
     );
 
-    if (!result.success && result.exitCode !== 0) {
+    // GNU tar exit code 2 means "warnings only" (e.g. unknown extended headers
+    // from macOS LIBARCHIVE.xattr.*). Treat it as success since files extract fine.
+    if (!result.success && result.exitCode !== 0 && result.exitCode !== 2) {
       return {
         success: false,
 
@@ -429,7 +436,8 @@ export async function downloadFromSpriteVM(
     logger,
   );
 
-  if (!result.success || result.exitCode !== 0) {
+  // GNU tar exit code 2 means "warnings only" — tolerate it.
+  if (!result.success && result.exitCode !== 0 && result.exitCode !== 2) {
     return {
       success: false,
       error: `Archive creation in VM failed: ${result.stderr}`,
