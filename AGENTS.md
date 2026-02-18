@@ -73,8 +73,10 @@ Wreckit includes specialized "meta-agents" that operate on the system itself rat
 ## State Flow
 
 ```
-idea → researched → planned → implementing → in_pr → done
+idea → researched → planned → implementing → critique → in_pr → done
 ```
+
+Phases can be skipped via `skip_phases` in config or per-item. Skippable: `research`, `plan`, `critique`, `pr`. Non-skippable: `implement`, `complete`.
 
 ## Architecture
 
@@ -104,9 +106,26 @@ TypeScript CLI built with Bun. Key directories:
   },
   "max_iterations": 100,
   "timeout_seconds": 3600,
+  "skip_phases": [],
   "branch_cleanup": {"enabled": true, "delete_remote": true}
 }
 ```
+
+### Skip Phases
+
+Skip phases globally or per-item. Per-item `skip_phases` overrides global config.
+
+```json
+// config.json — skip research and critique globally
+{ "skip_phases": ["research", "critique"] }
+
+// item.json — skip only plan for this item (overrides global)
+{ "skip_phases": ["plan"] }
+```
+
+Skippable: `research`, `plan`, `critique`, `pr`. Non-skippable: `implement`, `complete`.
+
+When phases are skipped, items auto-advance through intermediate states (e.g., `idea → planned` when research+plan are skipped).
 
 ### Agent Kind Options
 

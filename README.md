@@ -349,7 +349,8 @@ Lives in `.wreckit/config.json`:
     "model": "claude-sonnet-4-20250514"
   },
   "max_iterations": 100,
-  "timeout_seconds": 3600
+  "timeout_seconds": 3600,
+  "skip_phases": []
 }
 ```
 
@@ -474,6 +475,39 @@ See [MIGRATION.md](./MIGRATION.md) for detailed configuration and environment va
 ---
 
 ## Customization
+
+### Skip Phases
+
+Not every item needs every phase. Skip phases globally or per-item:
+
+```json
+// .wreckit/config.json — skip research and critique for all items
+{
+  "skip_phases": ["research", "critique"]
+}
+```
+
+```json
+// .wreckit/items/001-hotfix/item.json — skip just plan for this item
+{
+  "skip_phases": ["plan"]
+}
+```
+
+Per-item `skip_phases` overrides the global config. Skippable phases: `research`, `plan`, `critique`, `pr`. Non-skippable: `implement`, `complete`.
+
+When phases are skipped, items auto-advance through intermediate states. Use `--dry-run` to preview what will execute:
+
+```bash
+$ wreckit run 001-hotfix --dry-run
+Skipping phases: research, plan, critique
+Fast-forwarding 001-hotfix: idea → planned (skipped phases)
+
+  Would Execute Phases:
+    → implement: Execute user stories with AI agent
+      pr: Create/update pull request with changes
+      complete: Mark item as done after PR merge
+```
 
 ### Prompt Templates
 
