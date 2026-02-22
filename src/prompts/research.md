@@ -24,7 +24,18 @@ You are tasked with conducting comprehensive research for the following item. Be
    - Start with files directly related to the feature/task
    - Trace dependencies and connections
 
-### Step 2: Deep Investigation
+### Step 2: Infrastructure Inventory (CRITICAL)
+
+Before investigating the task itself, catalog the project's shared infrastructure. This prevents duplicate files and inconsistent conventions:
+
+1. **Database layer:** Find ALL schema files (*.sql), migration files, and type definitions. Note enum values, column names, and table relationships.
+2. **Client libraries:** Find ALL API/database client instantiations (e.g., Supabase, Prisma, Firebase). Note which credentials each uses and which files import them.
+3. **Shared types:** Find ALL type definition files for database models, API responses, etc. Note where each is defined and where it's imported.
+4. **Config files:** Find ALL environment variable references and configuration patterns.
+
+Document these in the "Key Files" section with exact paths. The implementation agent MUST reuse existing infrastructure — never create duplicates.
+
+### Step 3: Deep Investigation
 
 1. **Explore the codebase:**
    - Find all files related to this task
@@ -38,7 +49,7 @@ You are tasked with conducting comprehensive research for the following item. Be
    - Identify integration points and dependencies
    - Find relevant tests and examples
 
-### Step 3: Synthesize Findings
+### Step 4: Synthesize Findings
 
 Compile your research with:
 

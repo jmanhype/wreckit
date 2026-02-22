@@ -53,6 +53,19 @@ Implement the user stories for this item.
 - **Tests must pass:** Run `bun test` (or equivalent) before marking stories as done.
 - **Verify end-to-end:** After all stories are done, verify the feature works with a real invocation — not just that tests pass.
 
+## Consistency Rules (CRITICAL)
+
+- **No duplicate infrastructure:** Before creating any database client, schema file, type definition, or config file, search the ENTIRE codebase for existing ones (`Glob` for `**/supabase*`, `**/schema*`, `**/database*`, etc.). REUSE what exists. NEVER create a second file serving the same purpose.
+- **Enum/type alignment:** When writing values that must match across files (database CHECK constraints, TypeScript union types, status strings), read the existing definitions FIRST and use the EXACT same values. After writing, grep for all usages and verify consistency.
+- **Single source of truth:** If you need to modify a shared definition (schema, types, enums), update it in ONE place and then update ALL consumers. Do not modify the definition in one file while leaving stale copies in others.
+- **Import from canonical paths:** If the research identified existing modules (e.g., a Supabase client at `src/lib/supabase.ts`), import from that path. Do not create wrapper files at other paths.
+
+## Security Rules (CRITICAL)
+
+- **No shell injection:** NEVER interpolate variables into shell commands, heredocs, or template strings passed to `exec`/`spawn`/`execCommand`. Use base64 encoding, JSON file writes, or argument arrays instead.
+- **No plaintext secrets in code:** API keys, tokens, and credentials go in environment variables, never in source files.
+- **Sanitize user input:** Any value from user input, form data, or API requests must be validated/escaped before use in SQL, shell commands, URLs, or HTML.
+
 ## Working Directory
 
 {{item_path}}

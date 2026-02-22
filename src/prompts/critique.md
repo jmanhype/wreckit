@@ -26,6 +26,10 @@ The Builder has just finished implementing this item. You must review the code c
 2.  **Lazy Mocks:** Implementing a complex function with `return true;` or `// TODO`.
 3.  **Missing Tests:** Adding feature code without a corresponding test case that fails when the feature is broken.
 4.  **Semantic Drift:** Implementing something that looks like the Plan but uses completely different libraries or patterns.
+5.  **Duplicate Infrastructure:** Creating a new database client, schema file, or type definition when one already exists at a different path. Search the ENTIRE repo for files serving the same purpose.
+6.  **Enum/Type Mismatch:** Using different string values across files that must agree (e.g., database CHECK constraints say `'planning'` but TypeScript code writes `'plan'`). Grep for all enum/status/stage values and verify they match.
+7.  **Shell Injection:** Interpolating user-supplied values into shell commands, heredocs, or exec() calls without escaping. Look for `${variable}` inside backtick strings passed to exec/spawn/execCommand.
+8.  **Migration Ordering:** Creating SQL files that reference tables defined in OTHER SQL files without ensuring execution order (e.g., RLS policies on tables that haven't been created yet).
 
 ## Audit Instructions
 
@@ -35,6 +39,9 @@ The Builder has just finished implementing this item. You must review the code c
 4.  **Run Tests:** Execute the project's test suite (e.g. `bun test`, `npm test`, `cargo test`, `mix test`). Check `package.json` scripts or the project README for the correct test command. If tests fail, REJECT. If there is no test suite, note this in your critique.
 5.  **Run Build/Typecheck:** If applicable, run the build or typecheck command (e.g. `bun run typecheck`, `tsc --noEmit`). If it fails, REJECT.
 6.  **Verify End-to-End:** Don't just check that tests pass — verify the tests actually exercise the new logic. Tests that pass because they validate stubs or no-ops are a REJECT.
+7.  **Check Consistency:** Search the repo for duplicate files serving the same purpose (e.g., multiple database clients, multiple schema files, multiple type definition files). If the Builder created a new file when an existing one should have been reused, REJECT.
+8.  **Check Enum Alignment:** For any string enums used across SQL schemas and application code, grep for all occurrences and verify they use identical values. Mismatched enums between CHECK constraints and application code are a REJECT.
+9.  **Check Security:** Search for user-supplied values interpolated into shell commands (`${...}` inside exec/spawn calls), unescaped HTML output, or raw SQL string concatenation. Any shell injection, XSS, or SQL injection is a REJECT.
 
 ## Output Format
 
