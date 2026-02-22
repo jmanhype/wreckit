@@ -84,14 +84,65 @@ export async function readConfig(root: string): Promise<Config> {
   return readJsonWithSchema(getConfigPath(root), ConfigSchema);
 }
 
+// Lenient variant: accepts any string for state, strict on everything else.
+// Used only for normalization detection — never exposed outside this module.
+const ItemSchemaLenient = ItemSchema.extend({ state: z.string() });
+
 export async function readItem(itemDir: string): Promise<Item> {
   const itemPath = path.join(itemDir, "item.json");
-  return readJsonWithSchema(itemPath, ItemSchema);
+
+  // Fast path: strict parse
+  try {
+    return await readJsonWithSchema(itemPath, ItemSchema);
+  } catch (err) {
+    if (!(err instanceof SchemaValidationError)) throw err;
+
+    // Strict parse failed — check if state field is the only problem
+    let content: string;
+    try {
+      content = await fs.readFile(itemPath, "utf-8");
+    } catch {
+      throw err; // can't re-read, throw original
+    }
+
+    let rawData: Record<string, unknown>;
+    try {
+      rawData = JSON.parse(content) as Record<string, unknown>;
+    } catch {
+      throw err; // invalid JSON, throw original
+    }
+
+    const lenientResult = ItemSchemaLenient.safeParse(rawData);
+    if (!lenientResult.success) throw err; // non-state corruption
+
+    const originalState = String(rawData.state);
+    const normalized: Item = {
+      ...lenientResult.data,
+      state: "done",
+      last_error: `[auto-normalized] Invalid state "${originalState}" → "done" at ${new Date().toISOString()}`,
+      updated_at: new Date().toISOString(),
+    };
+
+    // Persist so subsequent reads hit the fast path
+    await writeJsonPretty(itemPath, normalized, { useLock: true });
+    console.warn(
+      `Warning: Item ${itemPath} had invalid state "${originalState}", normalized to "done"`,
+    );
+
+    return normalized;
+  }
 }
 
 export async function writeItem(itemDir: string, item: Item): Promise<void> {
+  // Defense-in-depth: validate before write to catch bugs in wreckit's own code
+  const result = ItemSchema.safeParse(item);
+  if (!result.success) {
+    throw new SchemaValidationError(
+      `Cannot write invalid item to ${itemDir}: ${result.error.message}`,
+    );
+  }
   const itemPath = path.join(itemDir, "item.json");
-  await writeJsonPretty(itemPath, item, { useLock: true });
+  await writeJsonPretty(itemPath, result.data, { useLock: true });
 }
 
 export async function readPrd(itemDir: string): Promise<Prd> {

@@ -281,6 +281,27 @@ async function diagnoseItem(
     const data = await readJson(itemJsonPath);
     const result = ItemSchema.safeParse(data);
     if (!result.success) {
+      // Check if the failure is specifically in the state field
+      const stateErrors = result.error.issues.filter(
+        (issue) => issue.path.length === 1 && issue.path[0] === "state",
+      );
+
+      if (
+        stateErrors.length > 0 &&
+        stateErrors.length === result.error.issues.length
+      ) {
+        // Only the state field is invalid — fixable
+        const rawState = (data as Record<string, unknown>).state;
+        diagnostics.push({
+          itemId: itemDirName,
+          severity: "error",
+          code: "INVALID_ITEM_STATE",
+          message: `item.json has invalid state "${String(rawState)}" in ${itemDir} (will normalize to "done")`,
+          fixable: true,
+        });
+        return diagnostics;
+      }
+
       diagnostics.push({
         itemId: null,
         severity: "error",
@@ -1091,6 +1112,60 @@ export async function applyFixes(
             }
           } catch (err) {
             message = `Failed to fix state: ${err instanceof Error ? err.message : String(err)}`;
+          }
+        }
+        break;
+      }
+
+      case "INVALID_ITEM_STATE": {
+        if (diagnostic.itemId) {
+          try {
+            const itemDir = path.join(
+              getItemsDir(root),
+              diagnostic.itemId,
+            );
+            const itemJsonPath = path.join(itemDir, "item.json");
+            const data = await readJson(itemJsonPath);
+            const originalState = String(
+              (data as Record<string, unknown>).state,
+            );
+
+            // Parse with lenient schema to get valid fields
+            const lenientSchema = ItemSchema.extend({ state: z.string() });
+            const lenientResult = lenientSchema.safeParse(data);
+            if (!lenientResult.success) {
+              message =
+                "Cannot fix: item has additional schema errors beyond state";
+              break;
+            }
+
+            // Backup before modification
+            const entry = await backupFile(
+              root,
+              sessionId,
+              itemJsonPath,
+              diagnostic,
+              "modified",
+            );
+            if (entry) {
+              backupEntries.push(entry);
+              hasBackups = true;
+              backupInfo = { sessionId, filePath: entry.backup_path };
+            }
+
+            // Normalize to done
+            const normalizedItem: Item = {
+              ...lenientResult.data,
+              state: "done",
+              last_error: `[doctor-fix] Invalid state "${originalState}" normalized to "done" at ${new Date().toISOString()}`,
+              updated_at: new Date().toISOString(),
+            };
+
+            await writeItem(itemDir, normalizedItem);
+            fixed = true;
+            message = `Normalized invalid state "${originalState}" to "done"`;
+          } catch (err) {
+            message = `Failed to normalize state: ${err instanceof Error ? err.message : String(err)}`;
           }
         }
         break;
