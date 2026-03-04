@@ -51,9 +51,25 @@ You must output a JSON object at the end of your response:
 {
   "status": "approved" | "rejected",
   "reason": "Detailed explanation of why...",
-  "critique": "Markdown critique to be added to progress.log"
+  "critique": "Markdown critique to be added to progress.log",
+  "evidence": [
+    {
+      "kind": "file" | "test" | "command",
+      "path": "relative/or/absolute/path (required for kind=file)",
+      "line": 123,
+      "snippet": "verbatim snippet found in file",
+      "command": "exact command you ran (required for test/command)",
+      "output": "short output excerpt proving the claim"
+    }
+  ]
 }
 ```
+
+For `status: "rejected"`:
+- `evidence` is REQUIRED and must include at least one verifiable entry.
+- Every hard claim (e.g., "X does not exist", "API Y is invalid") must include supporting evidence.
+- Do not use uncertain language ("might", "likely", "appears") unless you include explicit evidence for uncertainty.
+- If you cannot verify a defect with evidence, output `status: "approved"` instead of guessing.
 
 If you reject, the item will be sent back to the `planned` state for re-implementation.
 If you approve, it will proceed to `in_pr`.

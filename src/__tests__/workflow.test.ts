@@ -153,6 +153,7 @@ const {
   runPhaseResearch,
   runPhasePlan,
   runPhaseImplement,
+  runPhaseCritique,
   runPhasePr,
   runPhaseComplete,
   getNextPhase,
@@ -1663,6 +1664,173 @@ None.
         expect(mockedCommitAll).toHaveBeenCalled();
         expect(mockedCheckGitPreflight).toHaveBeenCalled();
       });
+    });
+  });
+
+  describe("runPhaseCritique", () => {
+    it("auto-approves contradictory missing-symbol rejection when evidence is invalid", async () => {
+      const item = createTestItem({ state: "implementing" });
+      await setupItem(item);
+      await fs.mkdir(path.join(tempDir, "src"), { recursive: true });
+      await fs.writeFile(
+        path.join(tempDir, "src", "symbols.ts"),
+        "export class ShadowArenaLogger {}\n",
+        "utf-8",
+      );
+
+      mockedRunAgentUnion.mockResolvedValue({
+        success: true,
+        output: JSON.stringify({
+          status: "rejected",
+          reason: "`ShadowArenaLogger` does not exist",
+          critique: "The class `ShadowArenaLogger` does not exist.",
+          evidence: [],
+        }),
+        timedOut: false,
+        exitCode: 0,
+        completionDetected: true,
+      });
+
+      const result = await runPhaseCritique(item.id, {
+        root: tempDir,
+        config,
+        logger: mockLogger,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.item.state).toBe("critique");
+      expect(result.item.last_error).toBeNull();
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining(
+          "Critic rejection contradicted by repository symbols",
+        ),
+      );
+    });
+
+    it("regresses to planned when rejection has no verifiable evidence", async () => {
+      const item = createTestItem({ state: "implementing" });
+      await setupItem(item);
+
+      mockedRunAgentUnion.mockResolvedValue({
+        success: true,
+        output: JSON.stringify({
+          status: "rejected",
+          reason: "Tests failed and build is broken",
+          critique: "Tests failed and build is broken.",
+          evidence: [],
+        }),
+        timedOut: false,
+        exitCode: 0,
+        completionDetected: true,
+      });
+
+      const result = await runPhaseCritique(item.id, {
+        root: tempDir,
+        config,
+        logger: mockLogger,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.item.state).toBe("planned");
+      expect(result.item.last_error).toContain(
+        "Critique rejected without verifiable evidence",
+      );
+    });
+
+    it("auto-approves contradictory missing-file rejection when file exists", async () => {
+      const item = createTestItem({ state: "implementing" });
+      await setupItem(item);
+      await fs.mkdir(path.join(tempDir, "conductor", "tests"), {
+        recursive: true,
+      });
+      const dogfoodPath = path.join(
+        tempDir,
+        "conductor",
+        "tests",
+        "test_e2e_dogfood.py",
+      );
+      await fs.writeFile(
+        dogfoodPath,
+        "print('exists')\n",
+        "utf-8",
+      );
+
+      mockedRunAgentUnion.mockResolvedValue({
+        success: true,
+        output: JSON.stringify({
+          status: "rejected",
+          reason: `The test file \`${dogfoodPath}\` does not exist.`,
+          critique: `File \`${dogfoodPath}\` does not exist.`,
+          evidence: [
+            {
+              kind: "command",
+              command: `ls -la ${dogfoodPath}`,
+              output: `ls: ${dogfoodPath}: No such file or directory`,
+            },
+          ],
+        }),
+        timedOut: false,
+        exitCode: 0,
+        completionDetected: true,
+      });
+
+      const result = await runPhaseCritique(item.id, {
+        root: tempDir,
+        config,
+        logger: mockLogger,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.item.state).toBe("critique");
+      expect(result.item.last_error).toBeNull();
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining(
+          "Critic rejection contradicted by repository symbols",
+        ),
+      );
+    });
+
+    it("keeps rejection when evidence is verifiable", async () => {
+      const item = createTestItem({ state: "implementing" });
+      await setupItem(item);
+      await fs.mkdir(path.join(tempDir, "src"), { recursive: true });
+      await fs.writeFile(
+        path.join(tempDir, "src", "unsafe.ts"),
+        "const unsafe = true;\n",
+        "utf-8",
+      );
+
+      mockedRunAgentUnion.mockResolvedValue({
+        success: true,
+        output: JSON.stringify({
+          status: "rejected",
+          reason: "Unsafe command execution",
+          critique: "Found unsafe command execution.",
+          evidence: [
+            {
+              kind: "file",
+              path: "src/unsafe.ts",
+              line: 1,
+              snippet: "const unsafe = true;",
+            },
+          ],
+        }),
+        timedOut: false,
+        exitCode: 0,
+        completionDetected: true,
+      });
+
+      const result = await runPhaseCritique(item.id, {
+        root: tempDir,
+        config,
+        logger: mockLogger,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.item.state).toBe("planned");
+      expect(result.item.last_error).toContain(
+        "Critique Failed: Unsafe command execution",
+      );
     });
   });
 
